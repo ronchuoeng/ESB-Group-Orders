@@ -12,11 +12,13 @@ class User(AbstractUser):
 class Product(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=1000)
-    price = models.DecimalField(decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     active = models.BooleanField(default=False)
-    img = models.ImageField(upload_to="")
+    img = models.ImageField(upload_to="esb/static/esb")
 
 
-class Order(models.Model):
+class Purchases(models.Model):
     order_id = models.IntegerField()
+    date = models.DateTimeField()
+    item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="items")
     buyer = models.ManyToManyField(User, blank=True, null=True, related_name="buyers")
