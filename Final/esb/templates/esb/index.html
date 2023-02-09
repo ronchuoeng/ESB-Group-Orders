@@ -2,6 +2,10 @@
 {% load static %}
 
 {% block body %}
+    <form method="POST" style="align-items:center;">
+        {% csrf_token %}
+        {{ form }}
 
+    </form>
 
 {% endblock %}

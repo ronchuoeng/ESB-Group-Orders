@@ -19,6 +19,6 @@ class Product(models.Model):
 
 class Purchases(models.Model):
     order_id = models.IntegerField()
-    date = models.DateTimeField()
+    date_time = models.DateTimeField(null=True)
     item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="items")
-    buyer = models.ManyToManyField(User, blank=True, null=True, related_name="buyers")
+    buyer = models.ManyToManyField(User, blank=True, related_name="buyers")
