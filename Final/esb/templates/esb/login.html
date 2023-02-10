@@ -1,6 +1,9 @@
 {% extends "esb/layout.html" %}
 
 {% block body %}
+{% if messages %}
+    {{ messages }}
+{% endif %}
     <form action="{% url 'login' %}" method="post">
     {% csrf_token %}
     <div class="form-group">
