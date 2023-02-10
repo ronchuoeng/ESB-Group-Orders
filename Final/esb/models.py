@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -9,11 +10,27 @@ class User(AbstractUser):
     email_is_verified = models.BooleanField(default=False)
 
 
+class Customer(models.Model):
+    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, null=True)
+    phone = models.CharField(max_length=100, null=True)
+    address = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Category(models.Model):
     title = models.CharField(max_length=32)
+    # Type is not necessary.
+    type = models.CharField(max_length=32, null=True, blank=True)
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ["type", "title"]
 
 
 class Product(models.Model):
@@ -37,14 +54,23 @@ class Product(models.Model):
             return self.title
 
     class Meta:
-        ordering = ["active", "title"]
+        ordering = ["-active", "title"]
 
 
 class Purchases(models.Model):
-    order_id = models.IntegerField()
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="products"
+    )
     date_time = models.DateTimeField(null=True)
-    item = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="items")
+    quantity = models.IntegerField()
     buyer = models.ManyToManyField(User, blank=True, related_name="buyers")
 
     def __str__(self):
-        return f"{self.order_id}: {self.item}"
+        return f"{self.id}: {self.product}"
+
+    @property
+    def is_expired(self):
+        return timezone.now() >= self.date_time
+
+    class Meta:
+        verbose_name_plural = "Purchases"
