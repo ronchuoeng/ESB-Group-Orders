@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from datetime import timedelta
 
 # Create your models here.
 
@@ -11,7 +12,7 @@ class User(AbstractUser):
 
 
 class Customer(models.Model):
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, unique=True)
     name = models.CharField(max_length=100, null=True)
     phone = models.CharField(max_length=100, null=True)
     address = models.CharField(max_length=200, null=True)
@@ -63,7 +64,7 @@ class Purchases(models.Model):
     )
     date_time = models.DateTimeField(null=True)
     quantity = models.IntegerField()
-    buyer = models.ManyToManyField(User, blank=True, related_name="buyers")
+    buyer = models.ManyToManyField(Customer, blank=True, related_name="buyers")
 
     def __str__(self):
         return f"{self.id}: {self.product}"
@@ -72,5 +73,25 @@ class Purchases(models.Model):
     def is_expired(self):
         return timezone.now() >= self.date_time
 
+    @property
+    def reach_target(self):
+        total_quantity = sum(
+            [purchase.quantity for purchase in self.customer_purchases.all()]
+        )
+        return total_quantity >= self.quantity
+
     class Meta:
         verbose_name_plural = "Purchases"
+
+
+class CustomerPurchase(models.Model):
+    customer = models.ForeignKey(
+        Customer, on_delete=models.CASCADE, related_name="customer_purchases"
+    )
+    purchase = models.ForeignKey(
+        Purchases, on_delete=models.CASCADE, related_name="customer_purchases"
+    )
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.customer} - {self.purchase} ({self.quantity})"
