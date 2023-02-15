@@ -1,6 +1,7 @@
+import json
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.db import IntegrityError
 from django import forms
@@ -9,8 +10,10 @@ from django.contrib.admin.widgets import (
     AdminDateWidget,
     AdminTimeWidget,
 )
-from .models import Purchases, User
+from django.contrib.auth.decorators import login_required
+from .models import PurchaseOrder, User, Customer
 from .utils import send_email_token
+from django.views.decorators.csrf import csrf_exempt
 import uuid
 
 # Create your views here.
@@ -98,8 +101,42 @@ def verify(request, token):
         return HttpResponse("Verify token is invalid/expired.")
 
 
+@login_required
 def settings_view(request):
+    user = User.objects.get(username=request.user.username)
+    return render(request, "esb/settings.html", {"user": user})
+
+
+@csrf_exempt
+def edit_settings(request):
     if request.method == "POST":
-        return HttpResponse("haha")
+        data = json.loads(request.body)
+        username = data.get("username", "")
+        phone = data.get("phone", "")
+        address = data.get("address", "")
+
+        user = User.objects.get(username=request.user.username)
+
+        # Create Customer model of user
+        try:
+            customer = Customer.objects.create(
+                user=user, name=username, phone=phone, address=address
+            )
+            return JsonResponse(
+                {"message": "Account information successfully changed."}, status=201
+            )
+        except IntegrityError:
+            customer = Customer.objects.get(user=user)
+            customer.name = username
+            customer.phone = phone
+            customer.address = address
+            customer.save()
+            return JsonResponse(
+                {"message": "Account information successfully changed."}, status=200
+            )
     else:
-        return render(request, "esb/settings.html")
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+
+def pending_page(request):
+    return render(request, "esb/pending.html")

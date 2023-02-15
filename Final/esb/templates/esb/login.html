@@ -6,14 +6,17 @@
 {% endif %}
     <form action="{% url 'login' %}" method="post">
     {% csrf_token %}
-    <div class="form-group">
+    <div class="input-group mb-3">
         <input autofocus class="form-control" type="text" name="username" placeholder="Username">
     </div>
-    <div class="form-group">
+    <div class="input-group mb-3">
         <input class="form-control" type="password" name="password" placeholder="Password">
     </div>
-    <input class="btn btn-primary" type="submit" value="Login">
+    <div style="text-align:center;">
+        <input class="btn btn-primary" type="submit" value="Login">
+    </div>
     </form>
-
-    Don't have an account? <a>Register here.</a>
+    <div style="text-align:center;">
+        Don't have an account? <a>Register here.</a>
+    </div>
 {% endblock %}

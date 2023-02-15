@@ -10,4 +10,7 @@ urlpatterns = [
     path("register", views.register, name="register"),
     path("verify/<str:token>", views.verify, name="verify"),
     path("settings", views.settings_view, name="settings"),
+    path("pending", views.pending_page, name="pending"),
+    # API routes
+    path("settings/edit", views.edit_settings, name="edit-settings"),
 ]

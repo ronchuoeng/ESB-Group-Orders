@@ -3,3 +3,4 @@ Final/__pycache__
 esb/__pycache__
 esb/migrations/__pycache__
 .env
+esb/config.py

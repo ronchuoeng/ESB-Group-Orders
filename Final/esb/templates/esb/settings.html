@@ -1,10 +1,30 @@
 {% extends "esb/layout.html" %}
 
 {% block body %}
-
-<form method="POST" style="align-items:center;">
-    {% csrf_token %}
-    {{ form }}
-</form>
-
+    <div id="settings-view" class="container-fluid">
+        <h3>Account Settings</h3>
+        <div style="margin: 50px;">
+            <form id="settings-form">
+                <div class="row mb-4" style="display: flex;">
+                    <label class="col-sm-1 col-form-label" style="width:100px;">Username</label>
+                    <div class="col-sm-6">
+                        <input disabled id="username" class="form-control" value="{{ user.customer.name }}">
+                    </div>
+                </div>
+                <div class="row mb-4" style="display: flex;">
+                    <label class="col-sm-1 col-form-label" style="width:100px;">Phone</label>
+                    <div class="col-sm-6">
+                        <input id="phone" disabled class="form-control" value="{{ user.customer.phone }}">
+                    </div>
+                </div>
+                <div class="row mb-4" style="display: flex;">
+                    <label class="col-sm-1 col-form-label"style="width:100px;"">Address</label>
+                    <div class="col-sm-6">
+                        <input id="address" disabled class="form-control" value="{{ user.customer.address }}">
+                    </div>
+                </div>
+                <button id="btn-edit" class="btn btn-primary">Edit</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

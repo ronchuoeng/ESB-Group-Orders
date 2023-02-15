@@ -58,13 +58,12 @@ class Product(models.Model):
         ordering = ["-active", "title"]
 
 
-class Purchases(models.Model):
+class PurchaseOrder(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="products"
     )
     date_time = models.DateTimeField(null=True)
-    quantity = models.IntegerField()
-    buyer = models.ManyToManyField(Customer, blank=True, related_name="buyers")
+    target_quantity = models.IntegerField()
 
     def __str__(self):
         return f"{self.id}: {self.product}"
@@ -74,14 +73,15 @@ class Purchases(models.Model):
         return timezone.now() >= self.date_time
 
     @property
+    def total_quantity(self):
+        return sum([purchase.quantity for purchase in self.customer_purchases.all()])
+
+    @property
     def reach_target(self):
         total_quantity = sum(
             [purchase.quantity for purchase in self.customer_purchases.all()]
         )
-        return total_quantity >= self.quantity
-
-    class Meta:
-        verbose_name_plural = "Purchases"
+        return total_quantity >= self.target_quantity
 
 
 class CustomerPurchase(models.Model):
@@ -89,9 +89,9 @@ class CustomerPurchase(models.Model):
         Customer, on_delete=models.CASCADE, related_name="customer_purchases"
     )
     purchase = models.ForeignKey(
-        Purchases, on_delete=models.CASCADE, related_name="customer_purchases"
+        PurchaseOrder, on_delete=models.CASCADE, related_name="customer_purchases"
     )
     quantity = models.IntegerField()
 
     def __str__(self):
-        return f"{self.customer} - {self.purchase} ({self.quantity})"
+        return f"{self.purchase} - {self.customer} ({self.quantity})"

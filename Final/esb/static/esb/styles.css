@@ -1,0 +1,21 @@
+#settings-view {
+    margin: 5px;
+}
+
+#settings-form {
+    margin: 5px;
+}
+
+#btn-edit {
+    width: 70px;
+}
+
+#btn-save {
+    width: 70px;
+    background-color: white;
+    color: #007bff;
+}
+
+#btn-save:hover {
+    border-width: 2px;
+}
