@@ -1,5 +1,11 @@
 {% extends 'esb/layout.html' %}
 
 {% block body %}
-ha
+<div class="container">
+    {% for pending in pendings %}
+    <a href="{% url 'order_page' pending.id %}">
+        <div> {{ pending }} </div>
+    </a>
+    {% endfor %}
+</div>
 {% endblock %}

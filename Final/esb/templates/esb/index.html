@@ -2,10 +2,11 @@
 {% load static %}
 
 {% block body %}
-    <form method="POST" style="align-items:center;">
-        {% csrf_token %}
-        {{ form }}
-
-    </form>
+    <div id="index">
+        <h1>ESB Global</h1>
+        <div class="container-fluid" style="text-align:center;position:absolute;bottom:0%;font-size:20px;">
+            Get what you want at wholesale prices!
+        </div>
+    </div>
 
 {% endblock %}

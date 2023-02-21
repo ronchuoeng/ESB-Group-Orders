@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-    document
-        .querySelector("#btn-edit")
-        .addEventListener("click", () => settings_view(event));
+    if (document.querySelector("#btn-edit")) {
+        document
+            .querySelector("#btn-edit")
+            .addEventListener("click", () => settings_view(event));
+    }
 });
 
 function settings_view(event) {
@@ -47,8 +49,6 @@ function settings_view(event) {
             alert(
                 "Username must contain at least 6 characters, consisting of upper or lower case letters or numbers, and no punctuation"
             );
-
-            username.value = "";
             return false;
         }
 

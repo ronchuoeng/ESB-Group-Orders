@@ -13,6 +13,7 @@ from django.contrib.admin.widgets import (
 from django.contrib.auth.decorators import login_required
 from .models import PurchaseOrder, User, Customer
 from .utils import send_email_token
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 
@@ -139,4 +140,15 @@ def edit_settings(request):
 
 
 def pending_page(request):
-    return render(request, "esb/pending.html")
+    products = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
+    pendings = [order for order in products if not order.reach_target]
+
+    return render(request, "esb/pending.html", {"pendings": pendings})
+
+
+def order_page(request, order_id):
+    try:
+        p_order = PurchaseOrder.objects.get(pk=order_id)
+    except PurchaseOrder.DoesNotExist:
+        return HttpResponse("This Purchase Order is exipred.")
+    return render(request, "esb/order.html", {"p_order": p_order})
