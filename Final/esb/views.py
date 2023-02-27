@@ -1,5 +1,6 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
@@ -10,8 +11,9 @@ from django.contrib.admin.widgets import (
     AdminDateWidget,
     AdminTimeWidget,
 )
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .models import PurchaseOrder, User, Customer
+from .models import Product, PurchaseOrder, User, Customer, Category, CustomerPurchase
 from .utils import send_email_token
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -47,8 +49,7 @@ def login_view(request):
                 send_email_token(user.email, user.email_token)
                 return render(
                     request,
-                    "esb/login.html",
-                    {
+                    "esb/login.html", {
                         "messages": "You need to activate your account by verifying your email first."
                     },
                 )
@@ -72,8 +73,9 @@ def register(request):
 
         if password != confirmation:
             return render(
-                request, "esb/register.html", {"messages": "Passwords must match."}
-            )
+                request, "esb/register.html", {
+                    "messages": "Passwords must match."
+                })
 
         # Attempt to create new user
         try:
@@ -83,7 +85,8 @@ def register(request):
             send_email_token(email, user.email_token)
         except IntegrityError:
             return render(
-                request, "esb/register.html", {"messages": "Username already taken."}
+                request, "esb/register.html", {
+                    "messages": "Username already taken."}
             )
         return HttpResponse(
             "Account has been successfully created.<a href='login'> Back to login page.</a>"
@@ -139,16 +142,117 @@ def edit_settings(request):
         return JsonResponse({"error": "POST request required."}, status=400)
 
 
-def pending_page(request):
-    products = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
-    pendings = [order for order in products if not order.reach_target]
+def category(request):
+    # Get unique type of Category
+    types = Category.objects.order_by(
+        "type").values_list("type", flat=True).distinct()
+    categories = {}
+    for type in types:
+        categories[type] = Category.objects.filter(type=type)
 
-    return render(request, "esb/pending.html", {"pendings": pendings})
+    return render(
+        request,
+        "esb/category.html",
+        {"categories": categories, "types": types},
+    )
+
+
+def product_page(request):
+    pass
+
+
+def pending_page(request):
+    # p_order = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
+    p_order = PurchaseOrder.objects.all()
+    pendings = [order for order in p_order if not order.reach_target]
+    paginator = Paginator(pendings, 18)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    # Prev two pages
+    prev_prev_page_number = page_obj.number - 2
+    # Next two pages
+    if page_obj.number + 2 in page_obj.paginator.page_range:
+        next_next_page_number = page_obj.number + 2
+    else:
+        next_next_page_number = None
+
+    return render(
+        request,
+        "esb/pendings.html",
+        {
+            "page_obj": page_obj,
+            "next_next_page_number": next_next_page_number,
+            "prev_prev_page_number": prev_prev_page_number,
+        },
+    )
+
+
+def inprogress_page(request):
+    p_order = PurchaseOrder.objects.all()
+    in_progress = [order for order in p_order if order.reach_target]
+    paginator = Paginator(in_progress, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    # Prev two pages
+    prev_prev_page_number = page_obj.number - 2
+    # Next two pages
+    if page_obj.number + 2 in page_obj.paginator.page_range:
+        next_next_page_number = page_obj.number + 2
+    else:
+        next_next_page_number = None
+
+    return render(
+        request,
+        "esb/inprogress.html",
+        {
+            "page_obj": page_obj,
+            "next_next_page_number": next_next_page_number,
+            "prev_prev_page_number": prev_prev_page_number,
+        },
+    )
 
 
 def order_page(request, order_id):
+    # Get Order model
     try:
         p_order = PurchaseOrder.objects.get(pk=order_id)
     except PurchaseOrder.DoesNotExist:
-        return HttpResponse("This Purchase Order is exipred.")
-    return render(request, "esb/order.html", {"p_order": p_order})
+        return HttpResponse("This Purchase Order is expired.")
+
+    if request.method == "POST":
+        # Get User model
+        user = User.objects.get(username=request.user.username)
+        # Get Customer model
+        try:
+            cus = Customer.objects.get(user=user)
+        # If Customer model haven't create
+        except Customer.DoesNotExist:
+            return render(request, "esb/settings.html", {
+                "user": user
+            })
+        quantity = request.POST.get('join')
+        try:
+            cusP = CustomerPurchase.objects.get(customer=cus, purchase=p_order)
+            cusP.quantity = quantity
+            cusP.save()
+        except CustomerPurchase.DoesNotExist:
+            cusP = CustomerPurchase.objects.create(
+                customer=cus, purchase=p_order, quantity=quantity)
+
+        return redirect("order_page", order_id)
+
+    if request.method == "GET":
+        return render(request, "esb/order.html", {
+            "p_order": p_order
+        })
+
+
+def refresh_order(request, order_id):
+    if request.method == "GET":
+        try:
+            p_order = PurchaseOrder.objects.get(pk=order_id)
+        except PurchaseOrder.DoesNotExist:
+            return JsonResponse({"error": "This order is expired/not exist."}, status=404)
+        target_quantity = p_order.target_quantity
+        total_quantity = p_order.total_quantity
+        return JsonResponse({"target_quantity": target_quantity, "total_quantity": total_quantity}, status=200)

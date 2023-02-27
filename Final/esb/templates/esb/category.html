@@ -1,0 +1,27 @@
+{% extends 'esb/layout.html' %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'esb/category.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+    <h1 class="padding1">Category</h1>
+    <div class="categories">
+        {% for type, type_categories in categories.items %}
+
+            <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color:#ee5c42;">
+                    {{ type }}
+                </a>
+                <ul class="dropdown-menu">
+                        {% for title in type_categories %}
+                            <li><a class="dropdown-item" href="#">{{ title }}</a></li>
+                        {% endfor %}
+                </ul>
+            </div>
+
+        {% endfor %}
+    </div>
+{% endblock %}
+

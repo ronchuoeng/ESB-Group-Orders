@@ -1,0 +1,44 @@
+{% extends 'esb/layout.html' %}
+
+{% block body %}
+<div id="pendings-view">
+    {% for pending in page_obj %}
+    <a class="pending-view" href="{% url 'order_page' pending.id %}">
+        <div>Order No.{{ pending.id}}: </div>
+            <div class="div-preview-img">
+                {% if pending.product.img %}
+                    <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}">
+                {% else %}
+                    No Image.
+                {% endif %}
+            </div>
+            <div class="div-preview-title">
+                {{ pending.product.title }}
+            </div>
+            <div>
+                ${{ pending.product.price }}
+            </div>
+    </a>
+    {% endfor %}
+</div>
+<nav aria-label="Page navigation example" style="margin:20px;display:flex;justify-content:center;position:fixed;bottom:0;left:50%;transform:translateX(-50%);">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+            {% if prev_prev_page_number != 0 %}
+                <li class="page-item"><a class="page-link" href="?page={{ prev_prev_page_number }}">{{ prev_prev_page_number }}</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a></li>
+        {% endif %}
+        <li class="page-item active"><a disabled class="page-link">{{ page_obj.number }}</a></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a></li>
+            {% if next_next_page_number != None %}
+                <li class="page-item"><a class="page-link" href="?page={{ next_next_page_number }}">{{ next_next_page_number }}</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% endblock %}

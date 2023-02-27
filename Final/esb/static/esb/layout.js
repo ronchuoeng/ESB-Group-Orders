@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// Edit Settings
 function settings_view(event) {
     event.preventDefault();
     // Settings view before clicking edit
@@ -69,6 +70,7 @@ function settings_view(event) {
     });
 }
 
+// Save settings
 function edit_settings() {
     // The settings the user edited
     const username = document.querySelector("#username").value;
@@ -87,7 +89,7 @@ function edit_settings() {
         .then((result) => {
             console.log(result);
             if (result.error === undefined) {
-                console.log("yesssss");
+                console.log("OK");
             }
         });
 }
