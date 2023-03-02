@@ -16,7 +16,7 @@
         <div id="div-order-body">
         <!-- Order number -->
             <div id="div-order-body-no">
-                Order No.<span id="order-no">{{ p_order.id}}</span>:
+                Order No.<span id="order-no">{{ p_order.id}}</span>: {{ cus_order_quantity }}
             </div>
         <!-- Title -->
             <h3 style="font-family: sans-serif;min-height:2em;">{{ p_order.product.title }}</h3>
@@ -29,26 +29,35 @@
                 <li>Category: {{ p_order.product.category}}</li>
             </ul>
             <h4>Price: ${{ p_order.product.price }}</h4>
-            {% if p_order.reach_target %}
-            <div class="div-target" style="text-align:center;background-color: rgba(121, 250, 121, 0.767);">
-                Target line reached.<br>
-                <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span><br>
-                The order has been activated.
+            {% if p_order.is_expired %}
+                <div class="text-bg-secondary p-3" style="text-align:center;">This order has expired</div>
             {% else %}
-            <div class="div-target" style="text-align:center;background-color: rgba(170, 170, 231, 0.632);">
-                Target line not reach.<br>
-                <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span><br>
-                The order has not been activated.
-            {% endif %}<br>
-            </div>
-            <br>
-            <div style="text-align:center;padding-top:1%;">
-                <form action="" method="post">
+                {% if p_order.reach_target %}
+                <div class="div-target" style="text-align:center;background-color: rgba(121, 250, 121, 0.767);">
+                    Target line reached.<br>
+                    <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span><br>
+                    The order has been activated.
+                {% else %}
+                <div class="div-target" style="text-align:center;background-color: rgba(170, 170, 231, 0.632);">
+                    Target line not reach.<br>
+                    <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span><br>
+                    The order has not been activated.
+                {% endif %}<br>
+                </div>
+                <br>
+                <div style="text-align:center;padding-top:1%;">
+                <form id="form-join" method="post">
                     {% csrf_token %}
                     <!-- the quantity of user order, default=1 -->
+                    {% if cus_in_order %}
+                    <input type="number" min="1" value="{{ cus_order_quantity }}" name="join">
+                    <button type="submit" id="btn-join">Joined</button>
+                    {% else %}
                     <input type="number" min="1" value="1" name="join">
                     <button type="submit" id="btn-join">Join</button>
+                    {% endif %}
                 </form>
+            {% endif %}
             </div>
         </div>
     </div>

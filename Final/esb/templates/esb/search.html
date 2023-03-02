@@ -1,0 +1,20 @@
+{% extends 'esb/pendings.html' %}
+{% load static %}
+
+{% block body2 %}
+    {% if results %}
+        <h1 class="padding1"> Search Results </h1>
+        <ul>
+            {% for product in results %}
+                <li>{{ product.title }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2> Search </h2>
+        <form action="{% url 'search_products' %}" role="search">
+
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+    {% endif %}
+{% endblock %}

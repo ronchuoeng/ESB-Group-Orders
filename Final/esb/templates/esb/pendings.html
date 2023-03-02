@@ -1,24 +1,27 @@
 {% extends 'esb/layout.html' %}
 
 {% block body %}
+<!-- Block for search.html-->
+{% block body2 %}{% endblock %}
+
 <div id="pendings-view">
     {% for pending in page_obj %}
-    <a class="pending-view" href="{% url 'order_page' pending.id %}">
+        <a class="pending-view" href="{% url 'order_page' pending.id %}">
         <div>Order No.{{ pending.id}}: </div>
-            <div class="div-preview-img">
-                {% if pending.product.img %}
-                    <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}">
-                {% else %}
-                    No Image.
-                {% endif %}
-            </div>
-            <div class="div-preview-title">
-                {{ pending.product.title }}
-            </div>
-            <div>
-                ${{ pending.product.price }}
-            </div>
-    </a>
+        <div class="div-preview-img">
+            {% if pending.product.img %}
+                <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}">
+            {% else %}
+                No Image.
+            {% endif %}
+        </div>
+        <div class="div-preview-title">
+            {{ pending.product.title }}
+        </div>
+        <div>
+            ${{ pending.product.price }}
+        </div>
+        </a>
     {% endfor %}
 </div>
 <nav aria-label="Page navigation example" style="margin:20px;display:flex;justify-content:center;position:fixed;bottom:0;left:50%;transform:translateX(-50%);">

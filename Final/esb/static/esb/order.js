@@ -1,6 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
     const orderNo = document.querySelector("#order-no").innerHTML;
 
+    const formJoin = document.querySelector("#form-join");
+    formJoin.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const confirmed = window.confirm(
+            "Are you sure you want to join/edit this Order?"
+        );
+
+        if (confirmed) {
+            formJoin.submit();
+        }
+    });
     // refresh Ordered people every 10 seconds.
     setInterval(() => refreshOrder(orderNo), 10000);
 });

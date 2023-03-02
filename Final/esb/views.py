@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.db import IntegrityError
+from django.db.models import Q
 from django import forms
 from django.contrib.admin.widgets import (
     AdminSplitDateTime,
@@ -162,9 +163,10 @@ def product_page(request):
 
 
 def pending_page(request):
-    # p_order = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
-    p_order = PurchaseOrder.objects.all()
+    # Get Orders that havent reached target & havent expired
+    p_order = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
     pendings = [order for order in p_order if not order.reach_target]
+    # 18 items per page
     paginator = Paginator(pendings, 18)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -188,9 +190,11 @@ def pending_page(request):
 
 
 def inprogress_page(request):
-    p_order = PurchaseOrder.objects.all()
+    # Get Orders that reached target & havent expired
+    p_order = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
     in_progress = [order for order in p_order if order.reach_target]
-    paginator = Paginator(in_progress, 12)
+    # 18 items per page
+    paginator = Paginator(in_progress, 18)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     # Prev two pages
@@ -217,11 +221,12 @@ def order_page(request, order_id):
     try:
         p_order = PurchaseOrder.objects.get(pk=order_id)
     except PurchaseOrder.DoesNotExist:
-        return HttpResponse("This Purchase Order is expired.")
+        return HttpResponse("This Purchase Order is invalid.")
+    # Get User model
+    user = User.objects.get(username=request.user.username)
 
+    # Join/Edit order
     if request.method == "POST":
-        # Get User model
-        user = User.objects.get(username=request.user.username)
         # Get Customer model
         try:
             cus = Customer.objects.get(user=user)
@@ -242,8 +247,19 @@ def order_page(request, order_id):
         return redirect("order_page", order_id)
 
     if request.method == "GET":
+        # Get user in Customer model as customer
+        customer = Customer.objects.get(user=user)
+        # Check customer in order or not
+        cus_in_order = p_order.customer_purchases.filter(
+            customer=customer).exists()
+        # Quantity of customer order
+        cus_order_quantity = p_order.customer_purchases.get(
+            customer=customer).quantity
+
         return render(request, "esb/order.html", {
-            "p_order": p_order
+            "p_order": p_order,
+            "cus_in_order": cus_in_order,
+            "cus_order_quantity": cus_order_quantity
         })
 
 
@@ -256,3 +272,24 @@ def refresh_order(request, order_id):
         target_quantity = p_order.target_quantity
         total_quantity = p_order.total_quantity
         return JsonResponse({"target_quantity": target_quantity, "total_quantity": total_quantity}, status=200)
+
+
+def search_products(request):
+
+    # search result split by blank space
+    search = request.GET.get('q')
+    if search:
+        query = search.split()
+        queries = [Q(title__icontains=q) for q in query]
+        q_obj = queries.pop()
+        for q in queries:
+            q_obj |= q
+        results = Product.objects.filter(q_obj)
+
+        return render(request, "esb/search.html", {
+            "query": query,
+            "results": results
+        })
+    # default page
+    else:
+        return render(request, "esb/search.html")

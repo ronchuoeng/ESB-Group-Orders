@@ -88,8 +88,5 @@ function edit_settings() {
         .then((response) => response.json())
         .then((result) => {
             console.log(result);
-            if (result.error === undefined) {
-                console.log("OK");
-            }
         });
 }

@@ -7,9 +7,9 @@
         <div>Order No.{{ pending.id}}: </div>
         <div class="div-preview-img">
             {% if pending.product.img %}
-            <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}" style="height:100%;width:100%;">
+                <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}">
             {% else %}
-            No Image.
+                No Image.
             {% endif %}
         </div>
         <div class="div-preview-title">
