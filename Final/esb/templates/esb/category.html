@@ -1,17 +1,13 @@
 {% extends 'esb/layout.html' %}
 {% load static %}
 
-{% block script %}
-    <script src="{% static 'esb/category.js' %}"></script>
-{% endblock %}
-
 {% block body %}
     <h1 class="padding1">Category</h1>
     <div class="categories">
         {% for type, type_categories in categories.items %}
 
             <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgba(39, 39, 196, 0.717);">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-family:sans-serif;background-color: rgba(39, 39, 196, 0.717);">
                     {{ type }}
                 </a>
                 <ul class="dropdown-menu">

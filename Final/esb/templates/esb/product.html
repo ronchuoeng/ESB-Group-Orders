@@ -1,7 +1,55 @@
 {% extends 'esb/layout.html' %}
+{% load static %}
 
 {% block body %}
-<div>
+{% if product.active %}
+<p id="order-status">Active</p>
+{% else %}
+<p id="order-status" style="color: #d3d3d3;">Inactive</p>
+{% endif %}
 
+<div id="div-order">
+    <!-- IMAGE -->
+    <div id="div-order-img">
+        <img src="/{{ product.img }}" alt="{{ product.title }}" class="img-thumbnail">
+    </div>
+    <!-- Body -->
+    <div id="div-order-body" style="position:relative;">
+        <!-- Product number -->
+        <div id="div-order-body-no">
+            Product No.<span id="order-no">{{ product.id}}</span>:
+        </div>
+
+        <!-- Title -->
+        <h3 style="font-family: sans-serif;min-height:2em;">{{ product.title }}</h3>
+        <!-- Description -->
+        <div id="div-body-description" style="height:15em;">
+            <!-- |linebreaks make blank line sync with models did -->
+            {{ product.description | linebreaks }}
+        </div>
+        <br>
+        <ul>
+            <li>Category: {{ product.category}}</li>
+        </ul>
+        <h4 style="text-align:center;">Price: ${{ product.price }}</h4>
+        <!-- If exists an order in progress for this product, join it-->
+        {% if join_order %}
+        <div class="div-target" style="text-align:center;">
+            <a href="{% url 'order_page' join_order.id %}"><button class="btn btn-outline-primary" style="width:160px;height:50px;font-size:1.4rem;"> Join Order </button></a>
+        </div>
+        <!-- If not exists but product's status is active, create new order-->
+        {% elif product.active == True %}
+        <div class="div-target" style="text-align:center;">
+            <a href="{% url 'new_order' product.id %}"><button class="btn btn-outline-primary" style="width:160px;height:50px;font-size:1.4em;">New Order</button></a>
+        </div>
+        {% else %}
+            <p id="order-status">Product is not available now.</p>
+        {% endif %}
+        <br>
+
+        {% if cus_in_order %}
+            <p style="font-weight:bolder;text-align:center;">Your have ordered: {{cus_order_quantity }}</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

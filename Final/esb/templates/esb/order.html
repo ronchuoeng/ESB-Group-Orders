@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block body %}
-
+    {% if p_order.reach_target %}
+        <p id="order-status" style="background-color: rgba(121, 250, 121, 0.767);">In Progress</p>
+    {% else %}
+        <p id="order-status" style="background-color: rgba(170, 170, 231, 0.632);">Pendings</p>
+    {% endif %}
     <div id="div-order">
         <!-- IMAGE -->
         <div id="div-order-img">
@@ -14,51 +18,69 @@
         </div>
         <!-- Body -->
         <div id="div-order-body">
-        <!-- Order number -->
+            <!-- Order number -->
             <div id="div-order-body-no">
-                Order No.<span id="order-no">{{ p_order.id}}</span>: {{ cus_order_quantity }}
+                Order No.<span id="order-no">{{ p_order.id}}</span>:
             </div>
-        <!-- Title -->
+
+            <!-- Title -->
             <h3 style="font-family: sans-serif;min-height:2em;">{{ p_order.product.title }}</h3>
-        <!-- Description -->
+            <!-- Description -->
             <div id="div-body-description">
                 <!-- |linebreaks make blank line sync with models did -->
                 {{ p_order.product.description | linebreaks }}
             </div>
+            <br>
             <ul>
                 <li>Category: {{ p_order.product.category}}</li>
+                <li>Order Deadline: {{ p_order.date_time }}</li>
             </ul>
-            <h4>Price: ${{ p_order.product.price }}</h4>
             {% if p_order.is_expired %}
                 <div class="text-bg-secondary p-3" style="text-align:center;">This order has expired</div>
             {% else %}
                 {% if p_order.reach_target %}
                 <div class="div-target" style="text-align:center;background-color: rgba(121, 250, 121, 0.767);">
-                    Target line reached.<br>
-                    <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span><br>
-                    The order has been activated.
+                    Target line <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span> reached.<br>
+                    The order has been activated.<br>
+                    Since the order has been activated, <span style="font-weight:bold;">you cannot cancel the order.</span>
+                </div>
                 {% else %}
                 <div class="div-target" style="text-align:center;background-color: rgba(170, 170, 231, 0.632);">
-                    Target line not reach.<br>
-                    <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span><br>
-                    The order has not been activated.
-                {% endif %}<br>
+                    Target line <span id="span-target" style="font-weight:bold;">[{{ p_order.total_quantity }}/{{ p_order.target_quantity }}]</span> not reach.<br>
+                    The order has not been activated.<br>
                 </div>
+                {% endif %}
                 <br>
+                <h4 style="text-align:center;">Price: ${{ p_order.product.price }}</h4>
                 <div style="text-align:center;padding-top:1%;">
-                <form id="form-join" method="post">
-                    {% csrf_token %}
-                    <!-- the quantity of user order, default=1 -->
-                    {% if cus_in_order %}
-                    <input type="number" min="1" value="{{ cus_order_quantity }}" name="join">
-                    <button type="submit" id="btn-join">Joined</button>
-                    {% else %}
-                    <input type="number" min="1" value="1" name="join">
-                    <button type="submit" id="btn-join">Join</button>
-                    {% endif %}
-                </form>
+                    <!-- form for Join/Edit/Delete Order -->
+                    <form id="form-join" method="post" action="{% url 'order_page' p_order.id %}">
+                        {% csrf_token %}
+                        <div class="btn-group">
+                        {% if cus_in_order %}
+                            {% if p_order.reach_target %}
+                                <input type="number" required min="{{ cus_order_quantity }}" value="{{ cus_order_quantity }}" name="join">
+                                <button class="btn btn-primary" type="submit" id="btn-join" name="action" value="join">Edit</button>
+                                <button disabled class="btn btn-outline-primary" type="submit" id="btn-cancel" name="action" value="delete">Cancel</button>
+                            {% else %}
+                                <input type="number" required min="1" value="{{ cus_order_quantity }}" name="join">
+                                <button class="btn btn-primary" type="submit" id="btn-join" name="action" value="join">Edit</button>
+                                <button class="btn btn-outline-primary" type="submit" id="btn-cancel" name="action" value="delete" formnovalidate>Cancel</button>
+                            {% endif %}
+                        {% else %}
+                            <input type="number" required min="1"  value="1" placeholder="Quantity" name="join">
+                            <button class="btn btn-primary" type="submit" id="btn-join" name="action" value="join">Join</button>
+                            <button  disabled class="btn btn-outline-primary" type="submit" id="btn-cancel" name="action" value="delete">Cancel</button>
+                        {% endif %}
+                        </div>
+                    </form>
+                    <!-- Quantity of user ordered-->
+                </div>
             {% endif %}
-            </div>
+            {% if cus_in_order %}
+                <p style="font-weight:bolder;text-align:center;">Your have ordered: {{cus_order_quantity }}</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
+

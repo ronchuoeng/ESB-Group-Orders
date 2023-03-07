@@ -1,23 +1,26 @@
 {% extends 'esb/layout.html' %}
 
 {% block body %}
+
+<h1 class="padding1">In Progress</h1>
 <div id="pendings-view">
-    {% for pending in page_obj %}
-    <a class="pending-view" href="{% url 'order_page' pending.id %}">
-        <div>Order No.{{ pending.id}}: </div>
+    {% for p in page_obj %}
+    <a class="pending-view" href="{% url 'order_page' p.id %}">
+        <div>Order No.{{ p.id}}: </div>
         <div class="div-preview-img">
-            {% if pending.product.img %}
-                <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}">
+            {% if p.product.img %}
+                <img src="{{ p.product.img }}" alt="{{ p.product.title }}">
             {% else %}
                 No Image.
             {% endif %}
         </div>
         <div class="div-preview-title">
-            {{ pending.product.title }}
+            {{ p.product.title }}
         </div>
         <div>
-            ${{ pending.product.price }}
+            ${{ p.product.price }}
         </div>
+        <p id="order-status" style="background-color: rgba(121, 250, 121, 0.767);">In Progress</p>
     </a>
     {% endfor %}
 </div>

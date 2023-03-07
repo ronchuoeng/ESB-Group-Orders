@@ -1,20 +1,38 @@
 {% extends 'esb/pendings.html' %}
 {% load static %}
 
-{% block body2 %}
+{% block title %}
     {% if results %}
         <h1 class="padding1"> Search Results </h1>
-        <ul>
-            {% for product in results %}
-                <li>{{ product.title }}</li>
-            {% endfor %}
-        </ul>
     {% else %}
-        <h2> Search </h2>
-        <form action="{% url 'search_products' %}" role="search">
-
-            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q">
-            <button class="btn btn-outline-primary" type="submit">Search</button>
-        </form>
+        <h1 class="padding1"> No Result </h1>
     {% endif %}
+{% endblock %}
+
+{% block body-view %}
+    {% for p in page_obj %}
+    <a class="pending-view" href="{% url 'product' p.id %}">
+        {% if p.active %}
+            <div style="font-weight:bolder;">Active</div>
+        {% else %}
+            <div style="font-weight:bolder;color:#d3d3d3;">Inactive</div>
+        {% endif %}
+
+        <div class="div-preview-img">
+            {% if p.img %}
+                <img src="{{ p.img }}" alt="{{ p.title }}">
+            {% else %}
+                No Image.
+            {% endif %}
+        </div>
+
+        <div class="div-preview-title">
+            {{ p.title }}
+        </div>
+
+        <div>
+            ${{ p.price }}
+        </div>
+    </a>
+    {% endfor %}
 {% endblock %}

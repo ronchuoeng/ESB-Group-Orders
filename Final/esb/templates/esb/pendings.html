@@ -1,29 +1,40 @@
 {% extends 'esb/layout.html' %}
 
 {% block body %}
-<!-- Block for search.html-->
-{% block body2 %}{% endblock %}
+<!-- Title-->
+{% block title %}<h1 class="padding1">Pendings</h1>{% endblock %}
 
+<!-- Body-->
 <div id="pendings-view">
-    {% for pending in page_obj %}
-        <a class="pending-view" href="{% url 'order_page' pending.id %}">
-        <div>Order No.{{ pending.id}}: </div>
+    {% block body-view %}
+    {% for p in page_obj %}
+        <!-- Anchor Tag for each view-->
+        <a class="pending-view" href="{% url 'order_page' p.id %}">
+            {% block title1 %} <div>Order No.{{ p.id}}: </div> {% endblock %}
+        <!-- Image-->
         <div class="div-preview-img">
-            {% if pending.product.img %}
-                <img src="{{ pending.product.img }}" alt="{{ pending.product.title }}">
-            {% else %}
-                No Image.
-            {% endif %}
+                {% if p.product.img %}
+                    <img src="{{ p.product.img }}" alt="{{ p.product.title }}">
+                {% else %}
+                    No Image.
+                {% endif %}
         </div>
+        <!-- Product Title-->
         <div class="div-preview-title">
-            {{ pending.product.title }}
+                {{ p.product.title }}
         </div>
+        <!-- Price-->
         <div>
-            ${{ pending.product.price }}
+                ${{ p.product.price }}
         </div>
+        <!-- Status-->
+        <p id="order-status" style="background-color: rgba(170, 170, 231, 0.632);">Pending</p>
         </a>
     {% endfor %}
+    {% endblock %}
 </div>
+
+<!-- Pagination-->
 <nav aria-label="Page navigation example" style="margin:20px;display:flex;justify-content:center;position:fixed;bottom:0;left:50%;transform:translateX(-50%);">
     <ul class="pagination">
         {% if page_obj.has_previous %}

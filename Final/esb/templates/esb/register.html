@@ -26,4 +26,12 @@
         </form>
        <div class="word-login">Already have an account? <a href="{% url 'login' %}">Log In here.</a></div>
 </div>
+
+<script>
+    Document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener('submit', function() {
+            docuemnt.querySelectorAll('button').disabled = true;
+        })
+    })
+</script>
 {% endblock %}

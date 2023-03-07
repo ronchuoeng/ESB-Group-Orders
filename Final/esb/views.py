@@ -17,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Product, PurchaseOrder, User, Customer, Category, CustomerPurchase
 from .utils import send_email_token
 from django.utils import timezone
+from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt
 import uuid
 
@@ -222,24 +223,32 @@ def order_page(request, order_id):
         p_order = PurchaseOrder.objects.get(pk=order_id)
     except PurchaseOrder.DoesNotExist:
         return HttpResponse("This Purchase Order is invalid.")
-    # Get User model
-    user = User.objects.get(username=request.user.username)
 
     # Join/Edit order
     if request.method == "POST":
+        try:
+            user = User.objects.get(user=request.user.username)
+        except:
+            return redirect("login")
         # Get Customer model
         try:
             cus = Customer.objects.get(user=user)
         # If Customer model haven't create
         except Customer.DoesNotExist:
             return render(request, "esb/settings.html", {
-                "user": user
+                "user": user,
+                "message": "Please complete your information before joining an order."
             })
+
         quantity = request.POST.get('join')
         try:
             cusP = CustomerPurchase.objects.get(customer=cus, purchase=p_order)
-            cusP.quantity = quantity
-            cusP.save()
+            print(request.POST.get("action"))
+            if request.POST.get("action") == "join":
+                cusP.quantity = quantity
+                cusP.save()
+            elif request.POST.get("action") == "delete":
+                cusP.delete()
         except CustomerPurchase.DoesNotExist:
             cusP = CustomerPurchase.objects.create(
                 customer=cus, purchase=p_order, quantity=quantity)
@@ -248,13 +257,22 @@ def order_page(request, order_id):
 
     if request.method == "GET":
         # Get user in Customer model as customer
-        customer = Customer.objects.get(user=user)
+        try:
+            user = User.objects.get(username=request.user.username)
+            customer = Customer.objects.get(user=user)
+        except (User.DoesNotExist, Customer.DoesNotExist):
+            return render(request, "esb/order.html", {
+                "p_order": p_order,
+            })
         # Check customer in order or not
         cus_in_order = p_order.customer_purchases.filter(
             customer=customer).exists()
         # Quantity of customer order
-        cus_order_quantity = p_order.customer_purchases.get(
-            customer=customer).quantity
+        try:
+            cus_order_quantity = p_order.customer_purchases.get(
+                customer=customer).quantity
+        except CustomerPurchase.DoesNotExist:
+            cus_order_quantity = 0
 
         return render(request, "esb/order.html", {
             "p_order": p_order,
@@ -269,13 +287,13 @@ def refresh_order(request, order_id):
             p_order = PurchaseOrder.objects.get(pk=order_id)
         except PurchaseOrder.DoesNotExist:
             return JsonResponse({"error": "This order is expired/not exist."}, status=404)
+
         target_quantity = p_order.target_quantity
         total_quantity = p_order.total_quantity
         return JsonResponse({"target_quantity": target_quantity, "total_quantity": total_quantity}, status=200)
 
 
 def search_products(request):
-
     # search result split by blank space
     search = request.GET.get('q')
     if search:
@@ -286,10 +304,96 @@ def search_products(request):
             q_obj |= q
         results = Product.objects.filter(q_obj)
 
+        # Make Pagination
+        paginator = Paginator(results, 18)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        # Prev two pages
+        prev_prev_page_number = page_obj.number - 2
+        # Next two pages
+        if page_obj.number + 2 in page_obj.paginator.page_range:
+            next_next_page_number = page_obj.number + 2
+        else:
+            next_next_page_number = None
+
         return render(request, "esb/search.html", {
             "query": query,
-            "results": results
+            "page_obj": page_obj,
+            "results": results,
+            "next_next_page_number": next_next_page_number,
+            "prev_prev_page_number": prev_prev_page_number
         })
     # default page
     else:
         return render(request, "esb/search.html")
+
+
+def my_orders(request):
+    # Get request user's Customer model and Customer Purchase model
+    user = User.objects.get(username=request.user.username)
+    try:
+        # Customer model
+        cus = Customer.objects.get(user=user)
+        # CustomerPurchase model
+        cusP = CustomerPurchase.objects.filter(
+            customer=cus).order_by("-purchase_id")
+    except (Customer.DoesNotExist, CustomerPurchase.DoesNotExist):
+        # return myoders page with empty
+        return render(request, "esb/myorders.html")
+
+    # Make Pagination
+    paginator = Paginator(cusP, 18)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    # Prev two pages
+    prev_prev_page_number = page_obj.number - 2
+    # Next two pages
+    if page_obj.number + 2 in page_obj.paginator.page_range:
+        next_next_page_number = page_obj.number + 2
+    else:
+        next_next_page_number = None
+
+    return render(request, "esb/myorders.html", {
+        "page_obj": page_obj,
+        "cusP": cusP,
+        "next_next_page_number": next_next_page_number,
+        "prev_prev_page_number": prev_prev_page_number
+    })
+
+
+def category_products(request, product_name):
+    pass
+
+
+def product(request, product_id):
+    try:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        return HttpResponse("The product does not exist.")
+    try:
+        join_order = product.order_product.get(
+            date_time__gt=timezone.now())
+    except PurchaseOrder.DoesNotExist:
+        join_order = None
+
+    return render(request, "esb/product.html", {
+        "product": product,
+        "join_order": join_order
+    })
+
+
+@login_required
+def new_order(request, product_id):
+    # Get the Product
+    product = Product.objects.get(pk=product_id)
+    # Get the Order of this product
+    try:
+        p_order = PurchaseOrder.objects.get(
+            product=product, date_time__gt=timezone.now())
+    # If not exists, create one
+    except PurchaseOrder.DoesNotExist:
+        date_time = timezone.now() + timedelta(weeks=2)
+        p_order = PurchaseOrder.objects.create(
+            product=product, date_time=date_time, target_quantity=100)
+
+    return HttpResponseRedirect(reverse("order_page", args=(p_order.pk,)))

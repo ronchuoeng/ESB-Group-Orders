@@ -41,7 +41,7 @@
                                 {{ request.user.username }}
                             </a>
                             <ul class="dropdown-menu" style="text-align:center;">
-                                <li><a class="dropdown-item" href="#">Ordering</a></li>
+                                <li><a class="dropdown-item" href="{% url 'my_orders' %}">My Orders</a></li>
                                 <li><a class="dropdown-item" href="{% url 'settings' %}">Settings</a></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>

@@ -60,7 +60,7 @@ class Product(models.Model):
 
 class PurchaseOrder(models.Model):
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, related_name="products"
+        Product, on_delete=models.CASCADE, related_name="order_product"
     )
     date_time = models.DateTimeField(null=True)
     target_quantity = models.IntegerField()

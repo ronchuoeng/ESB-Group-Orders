@@ -1,0 +1,34 @@
+{% extends "esb/pendings.html" %}
+
+{% block title %} <h1 class="padding1">My Orders</h1> {% endblock %}
+
+{% block body-view %}
+    {% for p in page_obj %}
+        <!-- Anchor Tag for each view-->
+        <a class="pending-view" href="{% url 'order_page' p.purchase.id %}">
+            <div>Order No.{{ p.purchase.id}}: </div>
+            <!-- Image-->
+            <div class="div-preview-img">
+                {% if p.purchase.product.img %}
+                    <img src="{{ p.purchase.product.img }}" alt="{{ p.purchase.product.title }}">
+                {% else %}
+                    No Image.
+                {% endif %}
+            </div>
+            <!-- Product Title-->
+            <div class="div-preview-title">
+                {{ p.purchase.product.title }}
+            </div>
+            <!-- Price-->
+            <div>
+                ${{ p.purchase.product.price }}
+            </div>
+            <!-- Status-->
+            {% if p.purchase.reach_target %}
+                <p id="order-status" style="background-color: rgba(121, 250, 121, 0.767);">In Progress</p>
+            {% else %}
+                <p id="order-status" style="background-color: rgba(170, 170, 231, 0.632);">Pending</p>
+            {% endif %}
+        </a>
+    {% endfor %}
+{% endblock %}
