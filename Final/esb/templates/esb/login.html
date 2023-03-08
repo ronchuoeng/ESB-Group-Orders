@@ -3,9 +3,40 @@
 {% block body %}
 <div class="padding1">
     <h1>Login</h1>
-    <br>
     {% if messages %}
-        - {{ messages }}
+    <!-- Messages -->
+    <ul class="messages">
+        {% for message in messages %}
+            {% if message.tags == 'success' %}
+                <div class="alert alert-success d-flex align-items-center" role="alert" style="height:3em;">
+                    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:" style="width:1em;height:1em;">
+                        <use xlink:href="#check-circle-fill" />
+                    </svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                </div>
+            {% elif message.tags == 'error' %}
+                <div class="alert alert-primary d-flex align-items-center" role="alert" style="height:3em;">
+                    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:" style="width:1em;height:1em;">
+                        <use xlink:href="#info-fill" />
+                    </svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                </div>
+            {% elif message.tags == 'warning' %}
+                <div class="alert alert-danger d-flex align-items-center" role="alert" style="height:3em;">
+                    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="width:1em;height:1em;">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                    </svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </ul>
     {% endif %}
         <form action="{% url 'login' %}" method="post">
         {% csrf_token %}

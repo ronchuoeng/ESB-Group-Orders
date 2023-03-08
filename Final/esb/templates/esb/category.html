@@ -12,7 +12,7 @@
                 </a>
                 <ul class="dropdown-menu">
                         {% for title in type_categories %}
-                            <li><a class="dropdown-item" href="#">{{ title }}</a></li>
+                            <li><a class="dropdown-item" href="{% url 'category_products' title %}">{{ title }}</a></li>
                         {% endfor %}
                 </ul>
             </div>

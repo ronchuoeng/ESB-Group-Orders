@@ -1,10 +1,18 @@
 {% extends "esb/layout.html" %}
 {% block body %}
+{% load static %}
 <div class="padding1">
     <h1>Register</h1>
     <br>
-    {% if messages %}
-        -{{ messages }}
+    {% if message %}
+        <div class="alert alert-danger d-flex align-items-center" role="alert" style="height:2.5em;">
+            <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:" style="width:1em;height:1em;">
+                <use xlink:href="#info-fill" />
+            </svg>
+            <div>
+                {{ message }}
+            </div>
+        </div>
     {% endif %}
         <form action="{% url 'register' %}" method="post">
             {% csrf_token %}

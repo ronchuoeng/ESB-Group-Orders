@@ -4,7 +4,8 @@
 {% block title %}
     {% if results %}
         <h1 class="padding1"> Search Results </h1>
-    {% else %}
+    {% endif %}
+    {% if results == nfasfsd %}
         <h1 class="padding1"> No Result </h1>
     {% endif %}
 {% endblock %}
@@ -20,7 +21,7 @@
 
         <div class="div-preview-img">
             {% if p.img %}
-                <img src="{{ p.img }}" alt="{{ p.title }}">
+                <img src="/{{ p.img }}" alt="{{ p.title }}">
             {% else %}
                 No Image.
             {% endif %}

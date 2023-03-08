@@ -11,6 +11,8 @@ urlpatterns = [
     path("settings", views.settings_view, name="settings"),
     path("product/<int:product_id>", views.product, name="product"),
     path("category", views.category, name="category"),
+    path("category_products/<str:category_name>",
+         views.category_products, name="category_products"),
     path("pendings", views.pending_page, name="pendings"),
     path("inprogess", views.inprogress_page, name="inprogress"),
     path("new_order/<int:product_id>", views.new_order, name="new_order"),

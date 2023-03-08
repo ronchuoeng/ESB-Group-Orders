@@ -38,10 +38,10 @@ def login_view(request):
 
         # Check if authentication successful
         if user is None:
+            messages.warning(request, "Invalid username and/or password.")
             return render(
                 request,
                 "esb/login.html",
-                {"messages": "Invalid username and/or password."},
             )
         else:
             if user.email_is_verified:
@@ -49,11 +49,11 @@ def login_view(request):
                 return HttpResponseRedirect(reverse("index"))
             else:
                 send_email_token(user.email, user.email_token)
+                messages.error(
+                    request, f"Please verify your email first: {user.email} ")
                 return render(
                     request,
-                    "esb/login.html", {
-                        "messages": "You need to activate your account by verifying your email first."
-                    },
+                    "esb/login.html"
                 )
     else:
         return render(request, "esb/login.html")
@@ -76,7 +76,7 @@ def register(request):
         if password != confirmation:
             return render(
                 request, "esb/register.html", {
-                    "messages": "Passwords must match."
+                    "message": "Passwords must match."
                 })
 
         # Attempt to create new user
@@ -88,11 +88,10 @@ def register(request):
         except IntegrityError:
             return render(
                 request, "esb/register.html", {
-                    "messages": "Username already taken."}
+                    "message": "Username already taken."}
             )
-        return HttpResponse(
-            "Account has been successfully created.<a href='login'> Back to login page.</a>"
-        )
+        messages.success(request, "Successfully created account.")
+        return redirect('login')
     else:
         return render(request, "esb/register.html")
 
@@ -102,7 +101,8 @@ def verify(request, token):
         user = User.objects.get(email_token=token)
         user.email_is_verified = True
         user.save()
-        return HttpResponse("Your account verified.")
+        messages.success(request, "Successfully verified account.")
+        return redirect("login")
     except Exception as e:
         return HttpResponse("Verify token is invalid/expired.")
 
@@ -159,14 +159,37 @@ def category(request):
     )
 
 
-def product_page(request):
-    pass
+def category_products(request, category_name):
+    category = Category.objects.get(title=category_name)
+    products = Product.objects.filter(category=category)
+
+    # Make Pagination
+    # 18 items per page
+    paginator = Paginator(products, 18)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    # Prev two pages
+    prev_prev_page_number = page_obj.number - 2
+    # Next two pages
+    if page_obj.number + 2 in page_obj.paginator.page_range:
+        next_next_page_number = page_obj.number + 2
+    else:
+        next_next_page_number = None
+
+    return render(request, "esb/categoryP.html", {
+        "category": category,
+        "page_obj": page_obj,
+        "next_next_page_number": next_next_page_number,
+        "prev_prev_page_number": prev_prev_page_number
+    })
 
 
 def pending_page(request):
     # Get Orders that havent reached target & havent expired
     p_order = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
     pendings = [order for order in p_order if not order.reach_target]
+
+    # Make Pagination
     # 18 items per page
     paginator = Paginator(pendings, 18)
     page_number = request.GET.get("page")
@@ -194,6 +217,8 @@ def inprogress_page(request):
     # Get Orders that reached target & havent expired
     p_order = PurchaseOrder.objects.filter(date_time__gt=timezone.now())
     in_progress = [order for order in p_order if order.reach_target]
+
+    # Make Pagination
     # 18 items per page
     paginator = Paginator(in_progress, 18)
     page_number = request.GET.get("page")
@@ -227,7 +252,7 @@ def order_page(request, order_id):
     # Join/Edit order
     if request.method == "POST":
         try:
-            user = User.objects.get(user=request.user.username)
+            user = User.objects.get(username=request.user.username)
         except:
             return redirect("login")
         # Get Customer model
@@ -239,14 +264,16 @@ def order_page(request, order_id):
                 "user": user,
                 "message": "Please complete your information before joining an order."
             })
-
+        # form of quantity user submit
         quantity = request.POST.get('join')
         try:
             cusP = CustomerPurchase.objects.get(customer=cus, purchase=p_order)
             print(request.POST.get("action"))
+            # If user click 'Join/Edit'
             if request.POST.get("action") == "join":
                 cusP.quantity = quantity
                 cusP.save()
+            # If user click 'Cancel'
             elif request.POST.get("action") == "delete":
                 cusP.delete()
         except CustomerPurchase.DoesNotExist:
@@ -282,6 +309,7 @@ def order_page(request, order_id):
 
 
 def refresh_order(request, order_id):
+    # refresh order page every 10 seconds(js file)
     if request.method == "GET":
         try:
             p_order = PurchaseOrder.objects.get(pk=order_id)
@@ -297,6 +325,7 @@ def search_products(request):
     # search result split by blank space
     search = request.GET.get('q')
     if search:
+        # split the keyword with space
         query = search.split()
         queries = [Q(title__icontains=q) for q in query]
         q_obj = queries.pop()
@@ -323,7 +352,7 @@ def search_products(request):
             "next_next_page_number": next_next_page_number,
             "prev_prev_page_number": prev_prev_page_number
         })
-    # default page
+    # No Results
     else:
         return render(request, "esb/search.html")
 
@@ -359,10 +388,6 @@ def my_orders(request):
         "next_next_page_number": next_next_page_number,
         "prev_prev_page_number": prev_prev_page_number
     })
-
-
-def category_products(request, product_name):
-    pass
 
 
 def product(request, product_id):
