@@ -19,9 +19,15 @@ urlpatterns = [
     path("order/<int:order_id>", views.order_page, name="order_page"),
     path("search_products", views.search_products, name="search_products"),
     path("my_orders", views.my_orders, name="my_orders"),
+    path("manage_orders", views.manage_orders, name="manage_orders"),
+    path("manage_orders/<int:order_id>",
+         views.order_details, name="order_details"),
     # API routes
     path("settings/edit", views.edit_settings, name="edit-settings"),
     path("order/<int:order_id>/refresh",
-         views.refresh_order, name="refresh_order")
-    # path("categories/<str:category_type>", views.categor, name="categor"),
+         views.refresh_order, name="refresh_order"),
+    path("delete_cus_order",
+         views.delete_cus_order, name="delete_cus_order"),
+    path("save_edit_cus_order", views.save_edit_cus_order,
+         name="save_edit_cus_order")
 ]

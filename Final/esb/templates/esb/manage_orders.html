@@ -1,0 +1,42 @@
+{% extends 'esb/manage_layout.html' %}
+
+{% block title %}
+    Manage Orders
+{% endblock %}
+
+{% block top %}
+    <h4>Purchase Order</h4>
+{% endblock %}
+
+{% block thead %}
+    <th><input type="checkbox" id="checkall" /></th>
+    <th>ID</th>
+    <th>Product</th>
+    <th>Quantity</th>
+    <th>Expiration Date</th>
+    <th>Status</th>
+    <th>Details</th>
+{% endblock %}
+{% block tbody %}
+    {% for p_order in p_orders %}
+        <tr>
+            <td><input type="checkbox" class="checkthis" /></td>
+            <td>{{ p_order.id}}</td>
+            <td>{{ p_order.product}}</td>
+            <td>{{ p_order.total_quantity}}/{{ p_order.target_quantity}}</td>
+            <td>{{ p_order.date_time |date:'n/d D g:i a' }}</td>
+
+            <td>
+                {% if p_order.reach_target %}
+                    In Progress
+                {% else %}
+                    {% if p_order.is_expired %}
+                        Expired
+                    {% else %}
+                        Pending
+                    {% endif %}
+                {% endif %} </td>
+            <td><a href="{% url 'order_details' p_order.id %}">View</a></td>
+        </tr>
+    {% endfor %}
+{% endblock %}

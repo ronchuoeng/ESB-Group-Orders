@@ -368,7 +368,8 @@ def my_orders(request):
             customer=cus).order_by("-purchase_id")
     except (Customer.DoesNotExist, CustomerPurchase.DoesNotExist):
         # return myoders page with empty
-        return render(request, "esb/myorders.html")
+        cusP = CustomerPurchase.objects.none()
+        cus = None
 
     # Make Pagination
     paginator = Paginator(cusP, 18)
@@ -422,3 +423,88 @@ def new_order(request, product_id):
             product=product, date_time=date_time, target_quantity=100)
 
     return HttpResponseRedirect(reverse("order_page", args=(p_order.pk,)))
+
+
+def manage_orders(request):
+    if request.method == 'GET':
+        p_orders = PurchaseOrder.objects.all().order_by('-date_time')
+
+        return render(request, "esb/manage_orders.html", {
+            "p_orders": p_orders
+        })
+
+
+def order_details(request, order_id):
+    p_order = PurchaseOrder.objects.get(pk=order_id)
+    cus_in_order = CustomerPurchase.objects.filter(purchase=p_order)
+
+    # Make Pagination
+    paginator = Paginator(cus_in_order, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    # Prev two pages
+    prev_prev_page_number = page_obj.number - 2
+    # Next two pages
+    if page_obj.number + 2 in page_obj.paginator.page_range:
+        next_next_page_number = page_obj.number + 2
+    else:
+        next_next_page_number = None
+
+    return render(request, "esb/order_details.html", {
+        "page_obj": page_obj,
+        "p_order": p_order,
+        "next_next_page_number": next_next_page_number,
+        "prev_prev_page_number": prev_prev_page_number
+    })
+
+
+@csrf_exempt
+def delete_cus_order(request):
+    # Staff required
+    if request.user.is_staff:
+        # Click Delete
+        if request.method == 'DELETE':
+            data = json.loads(request.body)
+            cus_order_id = data.get("cus_order_id", "")
+            cus_order = CustomerPurchase.objects.get(pk=cus_order_id)
+            cus_order.delete()
+
+            return JsonResponse({"message": "Successfully deleted."}, status=200)
+        else:
+            return JsonResponse({"error": "DELETE request required."}, status=400)
+    else:
+        return JsonResponse({"error": "Staff required."}, status=400)
+
+
+@csrf_exempt
+def save_edit_cus_order(request):
+    # Staff required
+    if request.user.is_staff:
+        # Click Save
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            cus_order_id = data.get("cus_order_id", "")
+            # edited quantity
+            edited_cus_order_quantity = data.get(
+                "edited_cus_order_quantity", "")
+            cus_order = CustomerPurchase.objects.get(pk=cus_order_id)
+            cus_order.quantity = edited_cus_order_quantity
+            # save change
+            cus_order.save()
+
+            # Total quantity of this Order ( for refresh use)
+            total_quantity = cus_order.purchase.total_quantity
+            reach_target = cus_order.purchase.reach_target
+            is_expired = cus_order.purchase.is_expired
+
+            cus_data = {"message": "Edited save successfully.",
+                        "total_quantity": total_quantity,
+                        "reach_target": reach_target,
+                        "is_expired": is_expired}
+
+            return JsonResponse(cus_data, status=200)
+        else:
+            return JsonResponse({"error": "POST request required."}, status=400)
+
+    else:
+        return JsonResponse({"error": "Staff required."}, status=400)
