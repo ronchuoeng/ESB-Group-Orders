@@ -26,7 +26,7 @@
     <tr id="tr{{ product.id }}">
         <td><input type="checkbox" class="checkthis" /></td>
         <td>{{ product.id }}</td>
-        <td>{{ product.title }}<div><img class="img-table" src="{{ product.img }}" style="width:15vw;text-align:center;align-items:center;justify-content:center;"></div></td>
+        <td>{{ product.title }}<div><img class="img-table" src="{{ product.product_image.first.image.url }}" style="width:15vw;text-align:center;align-items:center;justify-content:center;"></div></td>
         <td>${{ product.price }}</td>
         <td>{{ product.category }}</td>
         <td><span class="p-description">{{ product.description |linebreaks }}</span></td>

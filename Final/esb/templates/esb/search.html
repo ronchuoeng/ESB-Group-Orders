@@ -5,7 +5,7 @@
     {% if results %}
         <h1 class="padding1"> Search Results </h1>
     {% endif %}
-    {% if results == nfasfsd %}
+    {% if not results %}
         <h1 class="padding1"> No Result </h1>
     {% endif %}
 {% endblock %}
@@ -20,8 +20,8 @@
         {% endif %}
 
         <div class="div-preview-img">
-            {% if p.img %}
-                <img src="/{{ p.img }}" alt="{{ p.title }}">
+            {% if p.product_image.first.image.url %}
+                <img src="{{ p.product_image.first.image.url }}" alt="{{ p.title }}">
             {% else %}
                 No Image.
             {% endif %}

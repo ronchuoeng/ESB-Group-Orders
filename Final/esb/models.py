@@ -46,7 +46,6 @@ class Product(models.Model):
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     active = models.BooleanField(default=False)
-    img = models.ImageField(upload_to="esb/static/esb/image")
 
     def __str__(self):
         if self.active:
@@ -54,8 +53,43 @@ class Product(models.Model):
         else:
             return self.title
 
+    def image_count(self):
+        return self.product_image.count()
+
     class Meta:
         ordering = ["-active", "id"]
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="product_image")
+    image = models.ImageField(upload_to="esb/static/esb/image")
+    index = models.PositiveIntegerField(default=1, editable=False)
+
+    def __str__(self):
+        if self.product.image_count() <= 1:
+            return f"{self.product.title} ({self.index} of {self.product.image_count()} image)"
+        else:
+            return f"{self.product.title} ({self.index} of {self.product.image_count()} images)"
+
+    def save(self, *args, **kwargs):
+        # Update index of new image
+        self.index = self.product.product_image.count() + 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Get deleted image's index
+        deleted_index = self.index
+        super().delete(*args, **kwargs)
+        # Update index
+        for img in self.product.product_image.filter(index__gt=deleted_index):
+            img.index -= 1
+            img.save()
+        # Update image count
+        self.product.update_image_count()
+
+    class Meta:
+        ordering = ["-product__id", "index"]
 
 
 class PurchaseOrder(models.Model):

@@ -160,6 +160,7 @@ body {
             height: 100%;
             border: solid 1px #d3d3d3;
             margin: 0.5%;
+            position:relative;
         }
 
     #div-order-body-no {
@@ -202,6 +203,7 @@ body {
         align-items: center;
         width: 90%;
         height: 40vh;
+        position: relative;
     }
 
     #div-order-img img {
@@ -274,14 +276,48 @@ body {
         right: 0;
         margin-inline-end: 20px;
     }
+    .p-description {
+        display: block;
+    }
 }
 
 @media screen and (max-width: 991px) {
     .div-nav-login {
         margin-bottom: 20px;
     }
+
+    .p-description {
+        display: none;
+    }
 }
 
 a:hover {
     cursor: pointer;
+}
+
+
+
+#prev-image, #next-image {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+    width: calc(1rem + 3vw);
+    height: calc(5rem + 5vh);
+    border-radius: 1%;
+    border: none;
+}
+
+#prev-image {
+    left: 0;
+}
+
+#next-image {
+    right: 0;
+}
+
+#prev-image:hover, #next-image:hover {
+    opacity: 0.6;
+    width: calc(2rem + 3vw);
+    height: calc(6rem + 5vh);
 }
