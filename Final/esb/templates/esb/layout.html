@@ -45,6 +45,7 @@
                                 {{ user.username }}
                             </a>
                             <ul class="dropdown-menu" style="text-align:center;">
+                                <!-- Staff interface-->
                                 {% if user.is_staff %}
                                     <li>
                                         <a class="dropdown-item" href="{% url 'manage_orders' %}">Orders
@@ -58,7 +59,7 @@
                                             </svg>
                                         </a>
                                     <li>
-                                        <a class="dropdown-item" href="#">Products
+                                        <a class="dropdown-item" href="{% url 'manage_products' %}">Products
                                             <!-- SVG icon-->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square"
                                                 viewBox="0 0 16 16">
@@ -70,6 +71,7 @@
                                         </a>
                                     </li>
                                 {% endif %}
+                                <!-- User interface-->
                                 {% if not user.is_staff %}
                                     <li><a class="dropdown-item" href="{% url 'my_orders' %}">My Orders</a></li>
                                 {% endif %}

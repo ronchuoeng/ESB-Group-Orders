@@ -55,7 +55,7 @@ class Product(models.Model):
             return self.title
 
     class Meta:
-        ordering = ["-active", "title"]
+        ordering = ["-active", "id"]
 
 
 class PurchaseOrder(models.Model):

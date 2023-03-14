@@ -1,6 +1,8 @@
 body {
     padding-top: 3.75rem;
+    padding-bottom: 3.75rem;
 }
+
 #settings-view {
     margin: 5px;
 }
@@ -37,9 +39,6 @@ body {
     position: absolute;
 }
 
-input[type="number"] {
-    text-align: center;
-}
 
 #index h1{
     top: 50%;
@@ -244,15 +243,28 @@ input[type="number"] {
     height: auto;
 }
 
+.img-table {
+    max-width: 100%;
+    height: auto;
+}
+
 @media screen and (min-width: 500px) {
     .img {
         max-width: 200px;
+    }
+
+    .img-table {
+        max-width: 400px;
     }
 }
 
 @media screen and (min-width: 100px) {
     .img {
         max-width: 100px;
+    }
+
+    .img-table {
+        min-width: 150px;
     }
 }
 

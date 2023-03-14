@@ -429,8 +429,45 @@ def manage_orders(request):
     if request.method == 'GET':
         p_orders = PurchaseOrder.objects.all().order_by('-date_time')
 
+        # Make Pagination
+        paginator = Paginator(p_orders, 10)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        # Prev two pages
+        prev_prev_page_number = page_obj.number - 2
+        # Next two pages
+        if page_obj.number + 2 in page_obj.paginator.page_range:
+            next_next_page_number = page_obj.number + 2
+        else:
+            next_next_page_number = None
+
         return render(request, "esb/manage_orders.html", {
-            "p_orders": p_orders
+            "page_obj": page_obj,
+            "next_next_page_number": next_next_page_number,
+            "prev_prev_page_number": prev_prev_page_number
+        })
+
+
+def manage_products(request):
+    if request.method == 'GET':
+        products = Product.objects.all().order_by("id")
+
+        # Make pagination
+        paginator = Paginator(products, 10)
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+        # Prev two pages
+        prev_prev_page_number = page_obj.number - 2
+        # Next two pages
+        if page_obj.number + 2 in page_obj.paginator.page_range:
+            next_next_page_number = page_obj.number + 2
+        else:
+            next_next_page_number = None
+
+        return render(request, "esb/manage_products.html", {
+            "page_obj": page_obj,
+            "next_next_page_number": next_next_page_number,
+            "prev_prev_page_number": prev_prev_page_number
         })
 
 
@@ -508,3 +545,37 @@ def save_edit_cus_order(request):
 
     else:
         return JsonResponse({"error": "Staff required."}, status=400)
+
+
+@csrf_exempt
+def delete_product(request):
+    # Staff required
+    if request.user.is_staff:
+        # Click Delete
+        if request.method == 'DELETE':
+            data = json.loads(request.body)
+            product_id = data.get('product_id', "")
+            product = Product.objects.get(pk=product_id)
+            p_order = PurchaseOrder.objects.filter(product=product)
+            # Check if any ongoing orders related to the product
+            if not p_order.exists():
+                # If no, delete
+                product.delete()
+                return JsonResponse({"message": "Successfully deleted."}, status=200)
+            else:
+                # If there's order in progress
+                all_orders_not_reached_target = True
+                for order in p_order:
+                    if order.reach_target:
+                        all_orders_not_reached_target = False
+                        break
+                # If no order is in progress, delete
+                if all_orders_not_reached_target:
+                    product.delete()
+                else:
+                    return JsonResponse({"error": "There is at least an order in progress."}, status=200)
+        else:
+            return JsonResponse({"error": "DELETE request required."}, status=400)
+
+    else:
+        return JsonResponse({"error": "Staff requried."}, status=400)

@@ -18,8 +18,16 @@
     <th>Details</th>
 {% endblock %}
 {% block tbody %}
-    {% for p_order in p_orders %}
-        <tr>
+    {% for p_order in page_obj %}
+        {% if p_order.reach_target %}
+        <tr class="table-success">
+        {% else %}
+            {% if p_order.is_expired %}
+            <tr class="table-danger">
+            {% else %}
+            <tr>
+            {% endif %}
+        {% endif %}
             <td><input type="checkbox" class="checkthis" /></td>
             <td>{{ p_order.id}}</td>
             <td>{{ p_order.product}}</td>
@@ -39,4 +47,8 @@
             <td><a href="{% url 'order_details' p_order.id %}">View</a></td>
         </tr>
     {% endfor %}
+
+    {% block pagination %}
+        {% include 'esb/pagination.html' %}
+    {% endblock %}
 {% endblock %}

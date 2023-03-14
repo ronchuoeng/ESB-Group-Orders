@@ -1,5 +1,3 @@
-document.addEventListener("DOMContentLoaded", () => {});
-
 function deleteCusOrder(cus_order_id) {
     // Confirm
     const confirmed = confirm(
