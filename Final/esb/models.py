@@ -46,6 +46,8 @@ class Product(models.Model):
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
     active = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         if self.active:
@@ -55,6 +57,9 @@ class Product(models.Model):
 
     def image_count(self):
         return self.product_image.count()
+
+    def update_image_count(self):
+        return self.save()
 
     class Meta:
         ordering = ["-active", "id"]
@@ -80,6 +85,7 @@ class ProductImage(models.Model):
     def delete(self, *args, **kwargs):
         # Get deleted image's index
         deleted_index = self.index
+        self.image.delete()  # delete the associated image file
         super().delete(*args, **kwargs)
         # Update index
         for img in self.product.product_image.filter(index__gt=deleted_index):

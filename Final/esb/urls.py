@@ -31,5 +31,8 @@ urlpatterns = [
          views.delete_cus_order, name="delete_cus_order"),
     path("save_edit_cus_order", views.save_edit_cus_order,
          name="save_edit_cus_order"),
+    path("delete_purchase_order", views.delete_purchase_order,
+         name="delete_purchase_order"),
+    path("save_edit_p_order", views.save_edit_p_order, name="save_edit_p_order"),
     path("delete_product", views.delete_product, name="delete_product")
 ]

@@ -1,50 +1,38 @@
-document.addEventListener("DOMContentLoaded", function () {
+function viewDescription(product_id) {
     const containerD = document.querySelector(".container-description");
     const containerT = document.querySelector(".container-title");
     const containerB = document.querySelector(".container-body");
     const table = document.querySelector("table");
+    const view = document.querySelector(`#p-description${product_id}`);
+    const title = document.querySelector(`#p-title${product_id}`);
 
-    // If screen smaller than 992px, description is too long for it,so we hide it
-    if (window.innerWidth < 992) {
-        const descriptionView = document.querySelectorAll(".p-description");
-        descriptionView.forEach((view) => {
-            view.style.display = "none";
-            // Create Button for view description
-            const btnView = document.createElement("button");
-            btnView.innerHTML = "View Description";
-            btnView.className = "btn btn-primary";
+    // Hide the table
+    table.style.display = "none";
+    // Show description in containerD div
+    containerT.innerHTML =
+        "<h4>" + title.innerHTML + "</h4>" + "<h5>Description:</h5>";
+    containerB.innerHTML = view.innerHTML;
+    containerD.style.display = "block";
 
-            btnView.onclick = () => {
-                // Hide the table
-                table.style.display = "none";
-                // Show description in containerD div
-                containerT.innerHTML = "<h4>Description</h4>";
-                containerB.innerHTML = view.innerHTML;
-                containerD.style.display = "block";
+    // Create Button for go back
+    const goBack = document.createElement("button");
+    const divGoBack = document.createElement("div");
+    // Button value and style
+    goBack.innerHTML = "Back";
+    goBack.className = "btn btn-primary";
 
-                // Create Button for go back
-                const goBack = document.createElement("button");
-                const divGoBack = document.createElement("div");
-                // Button value and style
-                goBack.innerHTML = "Back";
-                goBack.className = "btn btn-primary";
+    divGoBack.appendChild(goBack);
+    containerD.appendChild(divGoBack);
 
-                divGoBack.appendChild(goBack);
-                containerD.appendChild(divGoBack);
-
-                goBack.onclick = () => {
-                    // Hide containerD div
-                    containerB.innerHTML = "";
-                    containerD.style.display = "none";
-                    // Show the table
-                    table.style.display = "block";
-                    goBack.parentElement.removeChild(goBack);
-                };
-            };
-            view.parentElement.append(btnView);
-        });
-    }
-});
+    goBack.onclick = () => {
+        // Hide containerD div
+        containerB.innerHTML = "";
+        containerD.style.display = "none";
+        // Show the table
+        table.style.display = "block";
+        goBack.parentElement.removeChild(goBack);
+    };
+}
 
 function deleteProduct(product_id) {
     // Confirm

@@ -1,4 +1,3 @@
-import json
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -17,9 +16,10 @@ from django.contrib.auth.decorators import login_required
 from .models import Product, PurchaseOrder, User, Customer, Category, CustomerPurchase
 from .utils import send_email_token
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.views.decorators.csrf import csrf_exempt
 import uuid
+import json
 
 # Create your views here.
 
@@ -525,21 +525,22 @@ def save_edit_cus_order(request):
             edited_cus_order_quantity = data.get(
                 "edited_cus_order_quantity", "")
             cus_order = CustomerPurchase.objects.get(pk=cus_order_id)
+            # Edit change
             cus_order.quantity = edited_cus_order_quantity
-            # save change
+            # Save change
             cus_order.save()
 
-            # Total quantity of this Order ( for refresh use)
+            # Updated data (For refresh use)
             total_quantity = cus_order.purchase.total_quantity
             reach_target = cus_order.purchase.reach_target
             is_expired = cus_order.purchase.is_expired
 
-            cus_data = {"message": "Edited save successfully.",
-                        "total_quantity": total_quantity,
-                        "reach_target": reach_target,
-                        "is_expired": is_expired}
+            order_data = {"message": "Edited save successfully.",
+                          "total_quantity": total_quantity,
+                          "reach_target": reach_target,
+                          "is_expired": is_expired}
 
-            return JsonResponse(cus_data, status=200)
+            return JsonResponse(order_data, status=200)
         else:
             return JsonResponse({"error": "POST request required."}, status=400)
 
@@ -573,9 +574,69 @@ def delete_product(request):
                 if all_orders_not_reached_target:
                     product.delete()
                 else:
-                    return JsonResponse({"error": "There is at least an order in progress."}, status=200)
+                    return JsonResponse({"error": "There is at least an order in progress."}, status=400)
         else:
             return JsonResponse({"error": "DELETE request required."}, status=400)
 
     else:
         return JsonResponse({"error": "Staff requried."}, status=400)
+
+
+@csrf_exempt
+def delete_purchase_order(request):
+    # Staff required:
+    if request.user.is_staff:
+        # Click Delete
+        if request.method == 'DELETE':
+            data = json.loads(request.body)
+            p_order_id = data.get("p_order_id", "")
+            p_order = PurchaseOrder.objects.get(pk=p_order_id)
+            p_order.delete()
+
+            return JsonResponse({"message": "Successfully deleted."}, status=200)
+        else:
+            return JsonResponse({"error": "DELETE request required."}, status=400)
+    else:
+        return JsonResponse({"error": "Staff required"}, status=400)
+
+
+@csrf_exempt
+def save_edit_p_order(request):
+    # Staff required
+    if request.user.is_staff:
+        # Click Edit
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            p_order_id = data.get("p_order_id", "")
+            # edited target quantity
+            edited_target_quantity = int(
+                data.get("edited_target_quantity", ""))
+            edited_expiration_datetime_str = data.get(
+                "edited_expiration_datetime", "")
+            edited_expiration_datetime = datetime.fromisoformat(
+                edited_expiration_datetime_str)
+            # Get the Order
+            p_order = PurchaseOrder.objects.get(pk=p_order_id)
+            # Edit change
+            p_order.target_quantity = edited_target_quantity
+            p_order.date_time = edited_expiration_datetime
+            # Save change
+            p_order.save()
+
+            # Updated data( For refresh use)
+            target_quantity = p_order.target_quantity
+            date_time = p_order.date_time
+            reach_target = p_order.reach_target
+            is_expired = p_order.is_expired
+
+            p_order_data = {"message": "Succesfully edited.",
+                            "target_quantity": target_quantity,
+                            "date_time": date_time,
+                            "reach_target": reach_target,
+                            "is_expired": is_expired
+                            }
+            return JsonResponse(p_order_data, status=200)
+        else:
+            return JsonResponse({"error": "POST request required."}, status=400)
+    else:
+        return JsonResponse({"error": "Staff required."}, status=400)

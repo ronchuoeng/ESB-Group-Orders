@@ -10,11 +10,11 @@
     {% for p in page_obj %}
         <!-- Anchor Tag for each view-->
         <a class="pending-view" href="{% url 'order_page' p.id %}">
-            {% block title1 %} <div>Order No.{{ p.id}}: </div> {% endblock %}
+            {% block title1 %} <div>Order No.{{ p.id }}: </div> {% endblock %}
         <!-- Image-->
         <div class="div-preview-img">
-                {% if p.product.img %}
-                    <img src="{{ p.product.img }}" alt="{{ p.product.title }}">
+                {% if p.product.product_image.first.image.url %}
+                    <img src="{{ p.product.product_image.first.image.url }}" alt="{{ p.product.title }}">
                 {% else %}
                     No Image.
                 {% endif %}

@@ -279,6 +279,9 @@ body {
     .p-description {
         display: block;
     }
+    .btn.btn-primary.manage {
+        display: none;
+    }
 }
 
 @media screen and (max-width: 991px) {
@@ -288,6 +291,9 @@ body {
 
     .p-description {
         display: none;
+    }
+    .btn.btn-primary.manage {
+        display: block;
     }
 }
 
@@ -321,3 +327,4 @@ a:hover {
     width: calc(2rem + 3vw);
     height: calc(6rem + 5vh);
 }
+

@@ -27,8 +27,13 @@
                 <td><input type="checkbox" id="checkthis" /></td>
                 <td>{{ p_order.id }}</td>
                 <td>{{ p_order.product.title }}</td>
-                <td><span id="total-quantity">{{ p_order.total_quantity }}</span>/{{ p_order.target_quantity }}</td>
-                <td>{{ p_order.date_time|date:'n/d D g:i a' }} </td>
+                <td>
+                    <span id="total-quantity">{{ p_order.total_quantity }}</span>/<span id="target-quantity">{{ p_order.target_quantity }}</span>
+                    <input type="number" id="input-target-quantity" style="display:none;" placeholder="Target Quantity" onkeyup="saveOnEnter(event, '{{ p_order.id }}', 'p_order')">
+                </td>
+                <td><span id="date-time">{{ p_order.date_time|date:"d/m/Y, H:i:s" }}</span>
+                    <input type="datetime-local" id="input-expiration-datetime" style="display:none;" value="{{ p_order.date_time|date:'Y-m-d\TH:i' }}" onkeyup="saveOnEnter(event, '{{ p_order.id }}', 'p_order')">
+                </td>
                 <td id="order-status" style="text-align:left;">
                     {% if p_order.reach_target %}
                     <span class="text-success">
@@ -42,7 +47,7 @@
                         {% endif %}
                     {% endif %}</td>
                 <td>
-                    <a href="#">
+                    <a id="edit-p-order" onclick="editPurchaseOrder('{{ p_order.id }}')" style="color:#0d6efd;">
                         <!-- SVG icon-->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square"
                             viewBox="0 0 16 16">
@@ -52,9 +57,10 @@
                                 d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
                         </svg>
                     </a>
+                    <button class="btn btn-primary" id="save-edit-order" style="display:none;" onclick="saveEditPurchaseOrder('{{ p_order.id }}')">Save</button>
                 </td>
                 <td>
-                    <a href="#">
+                    <a onclick="deletePurchaseOrder('{{p_order.id }}')" style="color:#0d6efd;">
                         <!-- SVG icon-->
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3"
                         viewBox="0 0 16 16">
@@ -88,12 +94,12 @@
             <td>{{ cus.customer.id }}</td>
             <td>{{ cus.customer }}</td>
             <td><span id="sp{{ cus.id }}">{{ cus.quantity }}</span>
-                <input id="input{{ cus.id }}" style="display:none;" type="text" value="{{ cus.quantity }}" onkeyup="saveOnEnter(event, '{{ cus.id }}')">
+                <input type="number" id="input-cus{{ cus.id }}" style="display:none;" value="{{ cus.quantity }}" onkeyup="saveOnEnter(event, '{{ cus.id }}', 'cus')">
             </td>
             <td>+{{ cus.customer.phone}}</td>
             <td>{{ cus.customer.address }}</td>
             <!-- Edit -->
-            <td><a id="edit{{ cus.id }}" onclick="editCusOrder('{{ cus.id }}')" style="color:#0d6efd;">
+            <td><a id="edit-cus{{ cus.id }}" onclick="editCusOrder('{{ cus.id }}')" style="color:#0d6efd;">
                     <!-- SVG icon-->
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square"
                         viewBox="0 0 16 16">
@@ -104,7 +110,7 @@
                     </svg>
                 </a>
                 <!-- Save edit-->
-                <button id="save{{ cus.id }}"  style="display:none;" onclick="saveEditCusOrder('{{ cus.id }}')">Save</button>
+                <button class="btn btn-primary" id="save{{ cus.id }}"  style="display:none;" onclick="saveEditCusOrder('{{ cus.id }}')">Save</button>
             </td>
             <!-- Delete -->
             <td><a onclick="deleteCusOrder('{{ cus.id }}')" style="color:#0d6efd;">

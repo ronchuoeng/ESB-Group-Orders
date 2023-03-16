@@ -3,6 +3,7 @@
 
 {% block script %}
 <script src="{% static 'esb/order.js' %}"></script>
+<script src="{% static 'esb/product.js' %}"></script>
 {% endblock %}
 
 {% block body %}
@@ -14,7 +15,24 @@
     <div id="div-order">
         <!-- IMAGE -->
         <div id="div-order-img">
-            <img src="/{{ p_order.product.img }}" alt="{{ p_order.product.title }}" class="img-thumbnail" >
+            {% for image in p_order.product.product_image.all %}
+            <img src="{{ image.image.url }}" alt="{{ image.product.title }}" class="img-thumbnail" style="display:none;"
+                id="index{{ image.index }}">
+            {% endfor %}
+            <button id="prev-image" onclick="toggleImage('prev')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
+                    viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                </svg>
+            </button>
+            <button id="next-image" onclick="toggleImage('next')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right"
+                    viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                </svg>
+            </button>
         </div>
         <!-- Body -->
         <div id="div-order-body">
@@ -55,30 +73,30 @@
                 <div style="text-align:center;padding-top:1%;">
                     <!-- form for Join/Edit/Delete Order -->
                     <form id="form-join" method="post" action="{% url 'order_page' p_order.id %}">
+                        <div class="input-group" style="justify-content:center;">
                         {% csrf_token %}
-                        <div class="btn-group">
                         {% if cus_in_order %}
                             {% if p_order.reach_target %}
-                                <input type="number" required min="{{ cus_order_quantity }}" value="{{ cus_order_quantity }}" name="join">
+                                <input type="number" required min="{{ cus_order_quantity }}" value="{{ cus_order_quantity }}" style="text-align:center;" name="join">
                                 <button class="btn btn-primary" type="submit" id="btn-join" name="action" value="join">Edit</button>
                                 <button disabled class="btn btn-outline-primary" type="submit" id="btn-cancel" name="action" value="delete">Cancel</button>
                             {% else %}
-                                <input type="number" required min="1" value="{{ cus_order_quantity }}" name="join">
+                                <input type="number"  required min="1" placeholder="Quantity" name="join" style="text-align:center;">
                                 <button class="btn btn-primary" type="submit" id="btn-join" name="action" value="join">Edit</button>
                                 <button class="btn btn-outline-primary" type="submit" id="btn-cancel" name="action" value="delete" formnovalidate>Cancel</button>
                             {% endif %}
                         {% else %}
-                            <input type="number" required min="1"  value="1" placeholder="Quantity" name="join">
+                            <input type="number" required min="1" placeholder="Quantity" style="text-align:center;" name="join">
                             <button class="btn btn-primary" type="submit" id="btn-join" name="action" value="join">Join</button>
                             <button  disabled class="btn btn-outline-primary" type="submit" id="btn-cancel" name="action" value="delete">Cancel</button>
                         {% endif %}
                         </div>
                     </form>
+                    {% if cus_in_order %}
+                        <p style="font-weight:bolder;">Your have ordered: {{cus_order_quantity }}</p>
+                    {% endif %}
                     <!-- Quantity of user ordered-->
                 </div>
-            {% endif %}
-            {% if cus_in_order %}
-                <p style="font-weight:bolder;text-align:center;">Your have ordered: {{cus_order_quantity }}</p>
             {% endif %}
         </div>
     </div>

@@ -26,10 +26,10 @@
     <tr id="tr{{ product.id }}">
         <td><input type="checkbox" class="checkthis" /></td>
         <td>{{ product.id }}</td>
-        <td>{{ product.title }}<div><img class="img-table" src="{{ product.product_image.first.image.url }}" style="width:15vw;text-align:center;align-items:center;justify-content:center;"></div></td>
+        <td><span id="p-title{{ product.id }}">{{ product.title }}</span><div><img class="img-table" src="{{ product.product_image.first.image.url }}" style="width:15vw;text-align:center;align-items:center;justify-content:center;"></div></td>
         <td>${{ product.price }}</td>
         <td>{{ product.category }}</td>
-        <td><span class="p-description">{{ product.description |linebreaks }}</span></td>
+        <td><span class="p-description" id="p-description{{ product.id }}">{{ product.description |linebreaks }}</span><button class="btn btn-primary manage" onclick="viewDescription('{{ product.id }}')">View Description</button></td>
         <td>{% if product.active %}
                 <span class="text-success" id="order-status">Active</span>
             {% else %}
