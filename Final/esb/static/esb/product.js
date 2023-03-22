@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelector("#index1").style.display = "block";
+    // Show first image of product
+    if (document.querySelector("#index1")) {
+        document.querySelector("#index1").style.display = "block";
+    }
     const images = document.querySelectorAll(".img-thumbnail");
 
     // Prev disabled initially.

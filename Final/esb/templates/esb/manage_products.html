@@ -5,6 +5,12 @@
 <script src="{% static 'esb/manage_products.js' %}"></script>
 {% endblock %}
 
+{% block create %}
+    <div style="text-align:right;margin-top:1%;">
+        <a  href="{% url 'create_product' %}" class="btn btn-outline-primary">Create New Product</a>
+    </div>
+{% endblock %}
+
 {% block top %}
     <h4>Products</h4>
 {% endblock %}
@@ -31,12 +37,12 @@
         <td>{{ product.category }}</td>
         <td><span class="p-description" id="p-description{{ product.id }}">{{ product.description |linebreaks }}</span><button class="btn btn-primary manage" onclick="viewDescription('{{ product.id }}')">View Description</button></td>
         <td>{% if product.active %}
-                <span class="text-success" id="order-status">Active</span>
+                <a style="text-decoration:none;" onclick="activeProduct('{{ product.id }}')" id="order-status"><span class="text-success" id="order-{{ product.id }}">Active</span></a>
             {% else %}
-                <span class="text-danger" id="order-status">Inactive</span>
+                <a style="text-decoration:none;" onclick="activeProduct('{{ product.id }}')" id="order-status"><span class="text-danger" id="order-{{ product.id }}">Inactive</span></a>
             {% endif %}
         </td>
-        <td><a href="#">
+        <td><a onclick="editProduct('{{ product.id }}')" style="color:#0d6efd;">
                 <!-- SVG icon-->
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square"
                     viewBox="0 0 16 16">

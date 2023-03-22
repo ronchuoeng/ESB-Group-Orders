@@ -65,3 +65,23 @@ function deleteProduct(product_id) {
             });
     }
 }
+
+function activeProduct(product_id) {
+    // Turn the status of product to Active/Inactive
+    fetch(`/product/${product_id}/active`, {
+        method: "PUT",
+    }).then((response) => {
+        if (response.status === 204) {
+        }
+    });
+    const productStatus = document.getElementById(`order-${product_id}`);
+    if (productStatus.innerHTML == "Active") {
+        productStatus.innerHTML = "Inactive";
+        productStatus.className = "text-danger";
+    } else {
+        productStatus.innerHTML = "Active";
+        productStatus.className = "text-success";
+    }
+}
+
+function editProduct(product_id) {}

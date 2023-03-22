@@ -2,6 +2,41 @@
 {% load static %}
 
 {% block body %}
+    {% if messages %}
+        <!-- Messages -->
+        <ul class="messages" style="padding-right:2rem;">
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="alert alert-success d-flex align-items-center" role="alert" style="height:3em;">
+                    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:" style="width:1em;height:1em;">
+                        <use xlink:href="#check-circle-fill" />
+                    </svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                </div>
+                {% elif message.tags == 'error' %}
+                <div class="alert alert-primary d-flex align-items-center" role="alert" style="height:3em;">
+                    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:" style="width:1em;height:1em;">
+                        <use xlink:href="#info-fill" />
+                    </svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                </div>
+                {% elif message.tags == 'warning' %}
+                <div class="alert alert-danger d-flex align-items-center" role="alert" style="height:3em;">
+                    <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="width:1em;height:1em;">
+                        <use xlink:href="#exclamation-triangle-fill" />
+                    </svg>
+                    <div>
+                        {{ message }}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
     <div id="index">
         <h1>ESB Global</h1>
         <div class="container-fluid" style="text-align:center;position:absolute;bottom:0%;font-size:24px;">

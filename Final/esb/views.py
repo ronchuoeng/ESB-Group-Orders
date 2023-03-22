@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, HttpResponseForbidden
 from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q
@@ -13,7 +13,7 @@ from django.contrib.admin.widgets import (
 )
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .models import Product, PurchaseOrder, User, Customer, Category, CustomerPurchase
+from .models import Product, PurchaseOrder, User, Customer, Category, CustomerPurchase, ProductImage
 from .utils import send_email_token
 from django.utils import timezone
 from datetime import timedelta, datetime
@@ -430,7 +430,7 @@ def manage_orders(request):
         p_orders = PurchaseOrder.objects.all().order_by('-date_time')
 
         # Make Pagination
-        paginator = Paginator(p_orders, 10)
+        paginator = Paginator(p_orders, 14)
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
         # Prev two pages
@@ -640,3 +640,106 @@ def save_edit_p_order(request):
             return JsonResponse({"error": "POST request required."}, status=400)
     else:
         return JsonResponse({"error": "Staff required."}, status=400)
+
+
+@csrf_exempt
+def create_product(request):
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to access this page.")
+        return redirect('/')
+
+    if request.method == "GET":
+        try:
+            product = Product.objects.get(
+                title="title", description="description", price=0)
+        except Product.DoesNotExist:
+            product = Product.objects.create(
+                title="title", description="description", price=0)
+        # Get categories
+        types = Category.objects.order_by(
+            "type").values_list("type", flat=True).distinct()
+        categories = {}
+        for type in types:
+            categories[type] = Category.objects.filter(type=type)
+
+        return render(request, "esb/create_product.html", {
+            "product": product,
+            "categories": categories,
+            "types": types
+        })
+
+    if request.method == "POST":
+        product_id = request.POST.get("product-id")
+        title = request.POST.get("title")
+        price = request.POST.get("price")
+        type_category = request.POST.get("type-category")
+        title_category = request.POST.get("title-category")
+        description = request.POST.get("description")
+        # Get Product
+        product = Product.objects.get(pk=product_id)
+        # Get Category
+        try:
+            category = Category.objects.get(
+                type=type_category, title=title_category)
+        except Category.DoesNotExist:
+            category = None
+        # Fill the information of product
+        product.title = title
+        product.price = price
+        product.category = category
+        product.description = description
+        product.save()
+        return redirect('manage_products')
+
+
+@csrf_exempt
+def edit_product(request, product_id):
+    if request.method == "GET":
+        product = Product.objects.get(pk=product_id)
+        return render(request, "esb/create_product.html", {
+            "product": product
+        })
+
+
+@csrf_exempt
+def upload_image(request):
+    if request.method == 'POST' and request.FILES.get('images'):
+        product_id = request.POST.get("product_id", "")
+        image = request.FILES.get('images')
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            product = Product.objects.create(
+                title="title", description="description", price=0)
+        product_image = ProductImage.objects.create(
+            product=product, image=image)
+        image_url = product_image.image.url
+        return JsonResponse({'image_url': image_url, 'product_id': product_id}, status=201)
+    return JsonResponse({'error': 'No image was uploaded.'}, status=400)
+
+
+@csrf_exempt
+def active_product(request, product_id):
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to access this page.")
+        return redirect('/')
+
+    if request.method == "PUT":
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            messages.warning("Product does not exist.")
+            return redirect('manage_product')
+
+        if product.active:
+            product.active = False
+        else:
+            product.active = True
+        product.save()
+        return HttpResponse(status=204)
+
+
+def update_sub_categories(request, type_select):
+    if request.method == "GET":
+        categories = Category.objects.filter(type=type_select).values()
+        return JsonResponse({"categories": list(categories)}, status=200)

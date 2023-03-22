@@ -7,26 +7,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Button click for Edit/Join Order
     const btnJoin = document.querySelector("#btn-join");
-    btnJoin.addEventListener("click", (event) => {
-        confirmed = window.confirm(
-            "Are you sure you want to join/edit the Order?"
-        );
-        if (!confirmed) {
-            event.preventDefault();
-        }
-    });
-
+    if (btnJoin) {
+        btnJoin.addEventListener("click", (event) => {
+            confirmed = window.confirm(
+                "Are you sure you want to join/edit the Order?"
+            );
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    }
     // Button click for Delete Order
     const btnCancel = document.querySelector("#btn-cancel");
-    btnCancel.addEventListener("click", (event) => {
-        confirmed = window.confirm(
-            "Are you sure you want to cancel the Order?"
-        );
-        if (!confirmed) {
-            event.preventDefault();
-        }
-    });
-
+    if (btnCancel) {
+        btnCancel.addEventListener("click", (event) => {
+            confirmed = window.confirm(
+                "Are you sure you want to cancel the Order?"
+            );
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+    }
     // refresh Ordered people every 10 seconds.
     setInterval(() => refreshOrder(orderNo), 10000);
 });

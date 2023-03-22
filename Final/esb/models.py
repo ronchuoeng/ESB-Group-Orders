@@ -23,11 +23,14 @@ class Customer(models.Model):
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=32)
-    type = models.CharField(max_length=32, null=True, blank=True)
+    title = models.CharField(max_length=32, null=True, blank=True)
+    type = models.CharField(max_length=32)
 
     def __str__(self):
-        return self.title
+        if self.title:
+            return self.title
+        else:
+            return self.type
 
     class Meta:
         verbose_name_plural = "Categories"
