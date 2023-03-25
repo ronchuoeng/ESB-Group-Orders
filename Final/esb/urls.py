@@ -22,8 +22,13 @@ urlpatterns = [
     path("manage_orders", views.manage_orders, name="manage_orders"),
     path("manage_orders/<int:order_id>",
          views.order_details, name="order_details"),
+    path("create_order", views.create_order, name="create_order"),
+    path("create_order/details/<str:product_title>",
+         views.create_order_details, name="create_order_details"),
     path("manage_products", views.manage_products, name="manage_products"),
     path("create_product", views.create_product, name="create_product"),
+    path("edit_product/<int:product_id>",
+         views.edit_product, name="edit_product"),
     # API routes
     path("settings/edit", views.edit_settings, name="edit-settings"),
     path("order/<int:order_id>/refresh",
@@ -37,8 +42,11 @@ urlpatterns = [
     path("save_edit_p_order", views.save_edit_p_order, name="save_edit_p_order"),
     path("delete_product", views.delete_product, name="delete_product"),
     path("upload_image", views.upload_image, name="upload_image"),
+    path("delete_image", views.delete_image, name="delete_image"),
     path("product/<int:product_id>/active",
          views.active_product, name="active_product"),
     path("category/type/<str:type_select>", views.update_sub_categories,
-         name="update_sub_categories")
+         name="update_sub_categories"),
+    path("create_order/category_select",
+         views.category_select, name="category_select")
 ]

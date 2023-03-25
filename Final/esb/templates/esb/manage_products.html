@@ -1,6 +1,10 @@
 {% extends 'esb/manage_layout.html' %}
 {% load static %}
 
+{% block title %}
+    Manage Products
+{% endblock %}
+
 {% block script %}
 <script src="{% static 'esb/manage_products.js' %}"></script>
 {% endblock %}
@@ -42,7 +46,7 @@
                 <a style="text-decoration:none;" onclick="activeProduct('{{ product.id }}')" id="order-status"><span class="text-danger" id="order-{{ product.id }}">Inactive</span></a>
             {% endif %}
         </td>
-        <td><a onclick="editProduct('{{ product.id }}')" style="color:#0d6efd;">
+        <td><a href="{% url 'edit_product' product.id %}">
                 <!-- SVG icon-->
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square"
                     viewBox="0 0 16 16">
@@ -70,7 +74,9 @@
 </div>
 
 {% block pagination %}
+        {% include 'esb/pagination.html' %}
 {% endblock %}
 
 {% endblock %}
+
 

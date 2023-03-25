@@ -155,7 +155,7 @@ def category(request):
     return render(
         request,
         "esb/category.html",
-        {"categories": categories, "types": types},
+        {"categories": categories},
     )
 
 
@@ -426,6 +426,11 @@ def new_order(request, product_id):
 
 
 def manage_orders(request):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to access this page.")
+        return redirect('/')
+
     if request.method == 'GET':
         p_orders = PurchaseOrder.objects.all().order_by('-date_time')
 
@@ -449,6 +454,11 @@ def manage_orders(request):
 
 
 def manage_products(request):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to access this page.")
+        return redirect('/')
+
     if request.method == 'GET':
         products = Product.objects.all().order_by("id")
 
@@ -472,6 +482,11 @@ def manage_products(request):
 
 
 def order_details(request, order_id):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to access this page.")
+        return redirect('/')
+
     p_order = PurchaseOrder.objects.get(pk=order_id)
     cus_in_order = CustomerPurchase.objects.filter(purchase=p_order)
 
@@ -644,6 +659,7 @@ def save_edit_p_order(request):
 
 @csrf_exempt
 def create_product(request):
+    # Staff required
     if not request.user.is_staff:
         messages.warning(request, "You are not allowed to access this page.")
         return redirect('/')
@@ -664,8 +680,7 @@ def create_product(request):
 
         return render(request, "esb/create_product.html", {
             "product": product,
-            "categories": categories,
-            "types": types
+            "categories": categories
         })
 
     if request.method == "POST":
@@ -675,53 +690,133 @@ def create_product(request):
         type_category = request.POST.get("type-category")
         title_category = request.POST.get("title-category")
         description = request.POST.get("description")
+
         # Get Product
         product = Product.objects.get(pk=product_id)
+
         # Get Category
         try:
             category = Category.objects.get(
                 type=type_category, title=title_category)
         except Category.DoesNotExist:
             category = None
+
         # Fill the information of product
         product.title = title
         product.price = price
         product.category = category
         product.description = description
         product.save()
+        messages.success(request, "Product created successfully.")
         return redirect('manage_products')
 
 
 @csrf_exempt
 def edit_product(request, product_id):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to do this operation.")
+        return redirect('/')
+
     if request.method == "GET":
+        # Get Product
         product = Product.objects.get(pk=product_id)
+        # Get type
+        types = Category.objects.order_by(
+            "type").values_list("type", flat=True).distinct()
+        categories = {}
+        # Get title
+        for type in types:
+            categories[type] = Category.objects.filter(type=type)
+
         return render(request, "esb/create_product.html", {
-            "product": product
+            "product": product,
+            "categories": categories,
+            "types": types
         })
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        price = request.POST.get("price")
+        type_category = request.POST.get("type-category")
+        title_category = request.POST.get("title-category")
+        description = request.POST.get("description")
+
+        # Get Product
+        product = Product.objects.get(pk=product_id)
+
+        # Get Category
+        try:
+            category = Category.objects.get(
+                type=type_category, title=title_category)
+        except Category.DoesNotExist:
+            category = None
+
+        # Fill the information of product
+        product.title = title
+        product.price = price
+        product.category = category
+        product.description = description
+        product.save()
+        messages.success(request, "Product edited successfully.")
+        return redirect('manage_products')
+
+
+@csrf_exempt
+def delete_image(request):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to do this operation.")
+        return redirect('/')
+
+    if request.method == "DELETE":
+        data = json.loads(request.body)
+        image_id = data.get("image_id", "")
+
+        # Get Image
+        try:
+            image = ProductImage.objects.get(pk=image_id)
+        except ProductImage.DoesNotExist:
+            return JsonResponse({"error": "Image not found."}, status=400)
+
+        # Delete Image
+        image.delete()
+        return JsonResponse({"message": "Successfully deleted."}, status=200)
 
 
 @csrf_exempt
 def upload_image(request):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to do this operation.")
+        return redirect('/')
+
     if request.method == 'POST' and request.FILES.get('images'):
         product_id = request.POST.get("product_id", "")
         image = request.FILES.get('images')
+        # Get Product/ Create Product
         try:
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist:
             product = Product.objects.create(
                 title="title", description="description", price=0)
+
+        # Create Image Model
         product_image = ProductImage.objects.create(
             product=product, image=image)
         image_url = product_image.image.url
-        return JsonResponse({'image_url': image_url, 'product_id': product_id}, status=201)
-    return JsonResponse({'error': 'No image was uploaded.'}, status=400)
+        image_id = product_image.id
+        return JsonResponse({'image_id': image_id, 'image_url': image_url, 'product_id': product_id}, status=201)
+
+    else:
+        return JsonResponse({'error': 'No image was uploaded.'}, status=400)
 
 
 @csrf_exempt
 def active_product(request, product_id):
+    # Staff required
     if not request.user.is_staff:
-        messages.warning(request, "You are not allowed to access this page.")
+        messages.warning(request, "You are not allowed to do this operation.")
         return redirect('/')
 
     if request.method == "PUT":
@@ -729,7 +824,7 @@ def active_product(request, product_id):
             product = Product.objects.get(pk=product_id)
         except Product.DoesNotExist:
             messages.warning("Product does not exist.")
-            return redirect('manage_product')
+            return redirect('manage_products')
 
         if product.active:
             product.active = False
@@ -743,3 +838,71 @@ def update_sub_categories(request, type_select):
     if request.method == "GET":
         categories = Category.objects.filter(type=type_select).values()
         return JsonResponse({"categories": list(categories)}, status=200)
+
+
+@csrf_exempt
+def create_order(request):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to do this operation.")
+        return redirect('/')
+
+    if request.method == "GET":
+        # Get categories
+        types = Category.objects.order_by(
+            "type").values_list("type", flat=True).distinct()
+        categories = {}
+        for type in types:
+            categories[type] = Category.objects.filter(type=type)
+
+        return render(request, "esb/create_order.html", {
+            "categories": categories
+        })
+
+
+@csrf_exempt
+def category_select(request):
+    if request.method == "PUT":
+        data = json.loads(request.body)
+        category_select = data.get("category_select", "")
+
+        # Get Category
+        try:
+            category = Category.objects.get(title=category_select)
+        except Category.DoesNotExist:
+            return JsonResponse({"error": "Please select a valid category."}, status=404)
+
+        # Get Products filter by category
+        product = Product.objects.filter(category=category).values()
+
+        return JsonResponse({"product": list(product)}, status=200)
+
+
+@csrf_exempt
+def create_order_details(request, product_title):
+    # Staff required
+    if not request.user.is_staff:
+        messages.warning(request, "You are not allowed to do this operation.")
+        return redirect('/')
+
+    try:
+        product = Product.objects.get(title=product_title)
+    except Product.DoesNotExist:
+        messages.warning(request, "Product does not exists.")
+        return redirect('create_order')
+
+    if request.method == "GET":
+        return render(request, "esb/create_order.html", {
+            "product": product
+        })
+
+    if request.method == "POST":
+        # Get data from form
+        expiration_date = request.POST.get("expiration-date")
+        target_quantity = request.POST.get("target-quantity")
+        # Create New Order
+        PurchaseOrder.objects.create(
+            product=product, date_time=expiration_date, target_quantity=target_quantity)
+        # Message Success
+        messages.success(request, "The new order successfully created.")
+        return redirect('manage_orders')

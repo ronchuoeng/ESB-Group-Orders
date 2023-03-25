@@ -1,8 +1,11 @@
 {% extends 'esb/layout.html' %}
+<!-- Title-->
+{% block title %}In Progress{% endblock %}
 
 {% block body %}
-
+<!-- Top-->
 <h1 class="padding1">In Progress</h1>
+<!-- Body-->
 <div id="pendings-view">
     {% for p in page_obj %}
     <a class="pending-view" href="{% url 'order_page' p.id %}">

@@ -1,0 +1,133 @@
+{% extends 'esb/layout.html' %}
+{% load static %}
+
+{% block title %} Create Order {% endblock %}
+
+{% block script %}<script src="{% static 'esb/create.js' %}"></script>{% endblock %}
+
+{% block body %}
+    <!-- Top-->
+    <div style="text-align:center;">
+        <p class="padding1 h2">Create New Order</p>
+    </div>
+
+    {% if messages %}
+        <!-- Messages -->
+        <ul class="messages" style="padding-right:2rem;">
+            {% for message in messages %}
+            {% if message.tags == 'success' %}
+            <div class="alert alert-success d-flex align-items-center" role="alert" style="height:3em;">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Success:" style="width:1em;height:1em;">
+                    <use xlink:href="#check-circle-fill" />
+                </svg>
+                <div>
+                    {{ message }}
+                </div>
+            </div>
+            {% elif message.tags == 'error' %}
+            <div class="alert alert-primary d-flex align-items-center" role="alert" style="height:3em;">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Info:" style="width:1em;height:1em;">
+                    <use xlink:href="#info-fill" />
+                </svg>
+                <div>
+                    {{ message }}
+                </div>
+            </div>
+            {% elif message.tags == 'warning' %}
+            <div class="alert alert-danger d-flex align-items-center" role="alert" style="height:3em;">
+                <svg class="bi flex-shrink-0 me-2" role="img" aria-label="Danger:" style="width:1em;height:1em;">
+                    <use xlink:href="#exclamation-triangle-fill" />
+                </svg>
+                <div>
+                    {{ message }}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if not product %}
+        <!-- View selection of product if haven't select-->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                        <select id="type-category" class="form-select form-select-sm mt-3" aria-label=".form-select-sm example"
+                            name="type-category" onchange="updateSubCategories()">
+                            <option selected>Category</option>
+                            {% for type, type_categories in categories.items %}
+                            <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                        <select id="sub-category" class="form-select form-select-sm mt-3" aria-label=".form-select-sm example"
+                            name="sub-category" style="display:none;" onchange="updateProduct()">
+                            <option selected>Sub Category</option>
+                        </select>
+                        <select id="product-select" class="form-select form-select-sm mt-3" aria-label=".form-select-sm example"
+                            name="product-select" style="display:none;">
+                            <option selected>Product</option>
+                        </select>
+                        <div id="create-next" class="text-center mt-3" style="display:none">
+                            <button id="btn-create-next" class="btn btn-primary">Next</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- View product details if selected-->
+        <div id="div-order">
+            <!-- IMAGE -->
+            <div id="div-order-img">
+                {% for image in product.product_image.all %}
+                <img src="{{ image.image.url }}" alt="{{ image.product.title }}" class="img-thumbnail" style="display:none;"
+                    id="index{{ image.index }}">
+                {% endfor %}
+                <button id="prev-image" onclick="toggleImage('prev')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
+                        viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+                    </svg>
+                </button>
+                <button id="next-image" onclick="toggleImage('next')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-right"
+                        viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                    </svg>
+                </button>
+            </div>
+            <!-- Body -->
+            <div id="div-order-body">
+                <br>
+                <!-- Title -->
+                <h3 style="font-family: sans-serif;min-height:2em;">{{ product.title }}</h3>
+                <!-- Description -->
+                <div id="div-body-description">
+                    <!-- |linebreaks make blank line sync with models did -->
+                    {{ product.description | linebreaks }}
+                </div>
+                <br>
+                <ul>
+                    <li>Category: {{ product.category }}</li>
+                </ul>
+                <h4 style="text-align:center;">Price: ${{ product.price }}</h4>
+                <div style="text-align:center;padding-top:1%;">
+                    <form method="POST" action="{% url 'create_order_details' product.title %}">
+                        <div class="form-floating mb-3">
+                            <input type="datetime-local" class="form-control" id="expiration-date" name="expiration-date" placeholder="Expiration Date">
+                            <label for="expiration-date">Expiration Date</label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="target-quantity" name="target-quantity" placeholder="Target Quantity">
+                            <label for="target-quantity">Target Quantity</label>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Create Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

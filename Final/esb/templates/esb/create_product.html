@@ -10,8 +10,8 @@
 <div id="div-order">
     <div id="div-order-img">
             {% for image in product.product_image.all %}
-                <img src="{{ image.image.url }}" alt="{{ image.product.title }}" class="img-thumbnail" style="display:none;"
-                    id="index{{ image.index }}">
+                <img src="{{ image.image.url }}" alt="{{ image.product.title }}" id="index{{ image.index }}" class="img-thumbnail" style="display:none;">
+                <a style="position:absolute;display:none;" id="index-delete{{ image.index }}" class="btn btn-danger" onclick="deleteImage('{{ image.id }}')">Delete</a>
             {% endfor %}
         <button id="prev-image" onclick="toggleImage('prev')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"
@@ -32,24 +32,26 @@
         <form method="post" enctype="multipart/form-data">
             <input type="hidden" id="product-id" name="product-id" value="{{ product.id }}">
             <div class="form-floating mb-3">
-                <input type="text" class="form-control" id="floatingInput" name="title" placeholder="Title" required>
+                <input type="text" class="form-control" id="floatingInput" name="title" placeholder="Title" value="{{ product.title }}" required>
                 <label for="floatingInput">Title</label>
             </div>
             <div class="form-floating">
-                <input type="number" class="form-control" id="floatingInput" name="price" placeholder="Price" required min="0.1">
-                <label for="floatingInput">Price</label>
+                <input type="number" class="form-control" id="floatingInput" name="price" placeholder="Price" required step="0.01" min="0.1" value="{{ product.price }}">
+                <label for="floatingInput">Price($)</label>
             </div>
+            <input type="hidden" id="hidden-category-type" value="{{ product.category.type }}">
+            <input type="hidden" id="hidden-category-title" value="{{ product.category.title }}">
             <select id="type-category" class="form-select form-select-sm mt-3" aria-label=".form-select-sm example" name="type-category" onchange="updateSubCategories()">
                 <option selected>Category</option>
                 {% for type, type_categories in categories.items %}
-                    <option>{{ type }}</option>
+                    <option value="{{ type }}">{{ type }}</option>
                 {% endfor %}
             </select>
             <select id="sub-category" class="form-select form-select-sm mt-3" aria-label=".form-select-sm example" name="title-category" style="display:none">
-                <option selected>Sub Category</option>
+                    <option selected>Sub Category</option>
             </select>
             <div class="mt-3 mb-3">
-                <textarea class="form-control" id="exampleFormControlTextarea1" name="description" placeholder="Description" rows="10"></textarea>
+                <textarea class="form-control" id="exampleFormControlTextarea1" name="description" placeholder="Description" rows="10">{{ product.description }}</textarea>
             </div>
             <input type="file" name="images" id="image-input" multiple onchange="uploadImage()">
             <button type="submit" class="btn btn-primary">Create</button>

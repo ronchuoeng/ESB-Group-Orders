@@ -12,6 +12,7 @@
 {% block create %}
 {% endblock %}
 
+<!-- Table Order Details-->
 {% block top %}
 <div class="table-responsive">
     <table id="bootstrapdatatable" class="table table-striped table-bordered" width="100%">
@@ -78,6 +79,8 @@
 </div>
 {% endblock %}
 
+
+<!-- Table Customer Details-->
 {% block thead %}
     <th><input type="checkbox" class="checkall" /></th>
     <th>Order ID</th>
@@ -89,6 +92,7 @@
     <th>Edit</th>
     <th>Delete</th>
 {% endblock %}
+
 {% block tbody %}
     {% for cus in page_obj %}
         <tr id="tr{{ cus.id }}">

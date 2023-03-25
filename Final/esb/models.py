@@ -64,6 +64,16 @@ class Product(models.Model):
     def update_image_count(self):
         return self.save()
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "category": self.category.title,
+            "price": self.price,
+            "active": self.active
+        }
+
     class Meta:
         ordering = ["-active", "id"]
 
