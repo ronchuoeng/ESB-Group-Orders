@@ -566,95 +566,95 @@ def save_edit_cus_order(request):
 @csrf_exempt
 def delete_product(request):
     # Staff required
-    if request.user.is_staff:
-        # Click Delete
-        if request.method == 'DELETE':
-            data = json.loads(request.body)
-            product_id = data.get('product_id', "")
-            product = Product.objects.get(pk=product_id)
-            p_order = PurchaseOrder.objects.filter(product=product)
-            # Check if any ongoing orders related to the product
-            if not p_order.exists():
-                # If no, delete
-                product.delete()
-                return JsonResponse({"message": "Successfully deleted."}, status=200)
-            else:
-                # If there's order in progress
-                all_orders_not_reached_target = True
-                for order in p_order:
-                    if order.reach_target:
-                        all_orders_not_reached_target = False
-                        break
-                # If no order is in progress, delete
-                if all_orders_not_reached_target:
-                    product.delete()
-                else:
-                    return JsonResponse({"error": "There is at least an order in progress."}, status=400)
-        else:
-            return JsonResponse({"error": "DELETE request required."}, status=400)
-
-    else:
+    if not request.user.is_staff:
         return JsonResponse({"error": "Staff requried."}, status=400)
+
+    # Click Delete
+    if request.method != 'DELETE':
+        return JsonResponse({"error": "DELETE request required."}, status=400)
+
+    data = json.loads(request.body)
+    product_id = data.get('product_id', "")
+    product = Product.objects.get(pk=product_id)
+    p_order = PurchaseOrder.objects.filter(product=product)
+    # Check if any ongoing orders related to the product
+    if not p_order.exists():
+        # If no, delete
+        product.delete()
+        return JsonResponse({"message": "Successfully deleted."}, status=200)
+
+    # If there's order in progress
+    all_orders_not_reached_target = True
+    for order in p_order:
+        if order.reach_target:
+            all_orders_not_reached_target = False
+            break
+    # If no order is in progress, delete
+    if all_orders_not_reached_target:
+        product.delete()
+
+    return JsonResponse({"error": "There is at least an order in progress."}, status=400)
 
 
 @csrf_exempt
 def delete_purchase_order(request):
     # Staff required:
-    if request.user.is_staff:
-        # Click Delete
-        if request.method == 'DELETE':
-            data = json.loads(request.body)
-            p_order_id = data.get("p_order_id", "")
-            p_order = PurchaseOrder.objects.get(pk=p_order_id)
-            p_order.delete()
-
-            return JsonResponse({"message": "Successfully deleted."}, status=200)
-        else:
-            return JsonResponse({"error": "DELETE request required."}, status=400)
-    else:
+    if not request.user.is_staff:
         return JsonResponse({"error": "Staff required"}, status=400)
+
+    # Click Delete
+    if request.method != 'DELETE':
+        return JsonResponse({"error": "DELETE request required."}, status=400)
+
+    data = json.loads(request.body)
+    p_order_id = data.get("p_order_id", "")
+    p_order = PurchaseOrder.objects.get(pk=p_order_id)
+    p_order.delete()
+
+    return JsonResponse({"message": "Successfully deleted."}, status=200)
 
 
 @csrf_exempt
 def save_edit_p_order(request):
     # Staff required
-    if request.user.is_staff:
-        # Click Edit
-        if request.method == 'POST':
-            data = json.loads(request.body)
-            p_order_id = data.get("p_order_id", "")
-            # edited target quantity
-            edited_target_quantity = int(
-                data.get("edited_target_quantity", ""))
-            edited_expiration_datetime_str = data.get(
-                "edited_expiration_datetime", "")
-            edited_expiration_datetime = datetime.fromisoformat(
-                edited_expiration_datetime_str)
-            # Get the Order
-            p_order = PurchaseOrder.objects.get(pk=p_order_id)
-            # Edit change
-            p_order.target_quantity = edited_target_quantity
-            p_order.date_time = edited_expiration_datetime
-            # Save change
-            p_order.save()
-
-            # Updated data( For refresh use)
-            target_quantity = p_order.target_quantity
-            date_time = p_order.date_time
-            reach_target = p_order.reach_target
-            is_expired = p_order.is_expired
-
-            p_order_data = {"message": "Succesfully edited.",
-                            "target_quantity": target_quantity,
-                            "date_time": date_time,
-                            "reach_target": reach_target,
-                            "is_expired": is_expired
-                            }
-            return JsonResponse(p_order_data, status=200)
-        else:
-            return JsonResponse({"error": "POST request required."}, status=400)
-    else:
+    if not request.user.is_staff:
         return JsonResponse({"error": "Staff required."}, status=400)
+
+    # Click Edit
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    # Fetch
+    data = json.loads(request.body)
+    p_order_id = data.get("p_order_id", "")
+    # edited target quantity
+    edited_target_quantity = int(
+        data.get("edited_target_quantity", ""))
+    edited_expiration_datetime_str = data.get(
+        "edited_expiration_datetime", "")
+    edited_expiration_datetime = datetime.fromisoformat(
+        edited_expiration_datetime_str)
+    # Get the Order
+    p_order = PurchaseOrder.objects.get(pk=p_order_id)
+    # Edit change
+    p_order.target_quantity = edited_target_quantity
+    p_order.date_time = edited_expiration_datetime
+    # Save change
+    p_order.save()
+
+    # Updated data( For refresh use)
+    target_quantity = p_order.target_quantity
+    date_time = p_order.date_time
+    reach_target = p_order.reach_target
+    is_expired = p_order.is_expired
+
+    p_order_data = {"message": "Succesfully edited.",
+                    "target_quantity": target_quantity,
+                    "date_time": date_time,
+                    "reach_target": reach_target,
+                    "is_expired": is_expired
+                    }
+    return JsonResponse(p_order_data, status=200)
 
 
 @csrf_exempt
@@ -791,25 +791,26 @@ def upload_image(request):
         messages.warning(request, "You are not allowed to do this operation.")
         return redirect('/')
 
-    if request.method == 'POST' and request.FILES.get('images'):
-        product_id = request.POST.get("product_id", "")
-        image = request.FILES.get('images')
-        # Get Product/ Create Product
-        try:
-            product = Product.objects.get(pk=product_id)
-        except Product.DoesNotExist:
-            product = Product.objects.create(
-                title="title", description="description", price=0)
-
-        # Create Image Model
-        product_image = ProductImage.objects.create(
-            product=product, image=image)
-        image_url = product_image.image.url
-        image_id = product_image.id
-        return JsonResponse({'image_id': image_id, 'image_url': image_url, 'product_id': product_id}, status=201)
-
-    else:
+    if not (request.method == 'POST' and request.FILES.get('images')):
         return JsonResponse({'error': 'No image was uploaded.'}, status=400)
+
+    product_id = request.POST.get("product_id", "")
+    image = request.FILES.get('images')
+
+    # Get Product/ Create Product
+    try:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        product = Product.objects.create(
+            title="title", description="description", price=0)
+
+    # Create Image Model
+    product_image = ProductImage.objects.create(
+        product=product, image=image)
+    image_url = product_image.image.url
+    image_id = product_image.id
+
+    return JsonResponse({'image_id': image_id, 'image_url': image_url, 'product_id': product_id}, status=201)
 
 
 @csrf_exempt
@@ -826,11 +827,9 @@ def active_product(request, product_id):
             messages.warning("Product does not exist.")
             return redirect('manage_products')
 
-        if product.active:
-            product.active = False
-        else:
-            product.active = True
+        product.active = False if product.active else True
         product.save()
+
         return HttpResponse(status=204)
 
 

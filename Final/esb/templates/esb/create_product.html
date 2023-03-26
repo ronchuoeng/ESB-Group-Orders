@@ -11,7 +11,7 @@
     <div id="div-order-img">
             {% for image in product.product_image.all %}
                 <img src="{{ image.image.url }}" alt="{{ image.product.title }}" id="index{{ image.index }}" class="img-thumbnail" style="display:none;">
-                <a style="position:absolute;display:none;" id="index-delete{{ image.index }}" class="btn btn-danger" onclick="deleteImage('{{ image.id }}')">Delete</a>
+                <a style="position:absolute;display:none;" id="index-delete{{ image.index }}" class="btn btn-danger" onclick="deleteImage('{{ image.id }}', count)">Delete</a>
             {% endfor %}
         <button id="prev-image" onclick="toggleImage('prev')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left"

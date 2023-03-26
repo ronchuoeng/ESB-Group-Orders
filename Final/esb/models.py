@@ -90,10 +90,14 @@ class ProductImage(models.Model):
         else:
             return f"{self.product.title} ({self.index} of {self.product.image_count()} images)"
 
-    def save(self, *args, **kwargs):
-        # Update index of new image
-        self.index = self.product.product_image.count() + 1
+    def save(self, update=True, *args, **kwargs):
+        if update:
+            self.index = self.product.product_image.count() + 1
         super().save(*args, **kwargs)
+
+    def updateCount(self):
+        # Update index of new image
+        self.save(update=True)
 
     def delete(self, *args, **kwargs):
         # Get deleted image's index
@@ -102,8 +106,13 @@ class ProductImage(models.Model):
         super().delete(*args, **kwargs)
         # Update index
         for img in self.product.product_image.filter(index__gt=deleted_index):
+            print(img.index)
+            print("ha")
+            print(deleted_index)
             img.index -= 1
-            img.save()
+            img.save(update=False)
+            print(img.index)
+            print(img.index)
         # Update image count
         self.product.update_image_count()
 
