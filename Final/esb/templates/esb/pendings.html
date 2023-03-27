@@ -4,39 +4,41 @@
 {% block title %}Pendings{% endblock %}
 
 {% block body %}
-<!-- Top-->
-<h1 class="padding1">Pendings</h1>
+{% block top %}
+    <!-- Top-->
+    <h1 class="padding1">Pendings</h1>
+{% endblock %}
 <!-- Body-->
 <div id="pendings-view">
     {% block body-view %}
-    {% for p in page_obj %}
-        <!-- Anchor Tag for each view-->
-        <a class="pending-view" href="{% url 'order_page' p.id %}">
-            {% block title1 %} <div>Order No.{{ p.id }}: </div> {% endblock %}
-        <!-- Image-->
-        <div class="div-preview-img">
-                {% if p.product.product_image.first.image.url %}
-                    <img src="{{ p.product.product_image.first.image.url }}" alt="{{ p.product.title }}">
-                {% else %}
-                    No Image.
-                {% endif %}
-        </div>
-        <!-- Product Title-->
-        <div class="div-preview-title">
-                {{ p.product.title }}
-        </div>
-        <!-- Price-->
-        <div>
-                ${{ p.product.price }}
-        </div>
-        <!-- Status-->
-        <p id="order-status" style="background-color: rgba(170, 170, 231, 0.632);">Pending</p>
-        </a>
-    {% endfor %}
+        {% for p in page_obj %}
+            <!-- Anchor Tag for each view-->
+            <a class="pending-view" href="{% url 'order_page' p.id %}">
+                {% block title1 %} <div>Order No.{{ p.id }}: </div> {% endblock %}
+            <!-- Image-->
+            <div class="div-preview-img">
+                    {% if p.product.product_image.first.image.url %}
+                        <img src="{{ p.product.product_image.first.image.url }}" alt="{{ p.product.title }}">
+                    {% else %}
+                        No Image.
+                    {% endif %}
+            </div>
+            <!-- Product Title-->
+            <div class="div-preview-title">
+                    {{ p.product.title }}
+            </div>
+            <!-- Price-->
+            <div>
+                    ${{ p.product.price }}
+            </div>
+            <!-- Status-->
+            <p id="order-status" style="background-color: rgba(170, 170, 231, 0.632);">Pending</p>
+            </a>
+        {% endfor %}
     {% endblock %}
 </div>
 
-<!-- Pagination-->
+<!-- Make Pagination-->
 {% block pagination %}
     {% include 'esb/pagination.html' %}
 {% endblock %}
