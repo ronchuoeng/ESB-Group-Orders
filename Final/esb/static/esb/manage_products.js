@@ -83,5 +83,3 @@ function activeProduct(product_id) {
         productStatus.className = "text-success";
     }
 }
-
-function editProduct(product_id) {}

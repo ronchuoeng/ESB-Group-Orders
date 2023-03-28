@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (inputTitle.value === "title") {
             inputTitle.value = "";
         } else {
-            document.querySelector(".btn.btn-primary").innerHTML = "Save"; // Change the button name 'Create' to 'Edit'
+            document.querySelector(".btn.btn-primary").innerHTML = "Save"; // Change the button name 'Create' to 'Save'
         }
     }
 
