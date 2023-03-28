@@ -87,6 +87,6 @@ export EMAIL_HOST_PASSWORD="<PUT YOUR EMAIL PASSWORD HERE>"
 4. Rename the `.env.example` file to `.env` and start the Django development server by running the following commands:
 
 ```
-source .env-sample
+source .env.example
 python manage.py runserver
 ```
