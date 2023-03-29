@@ -88,5 +88,9 @@ function edit_settings() {
         .then((response) => response.json())
         .then((result) => {
             console.log(result);
+            const messages = document.querySelector(".messages");
+            if (messages) {
+                messages.remove();
+            }
         });
 }

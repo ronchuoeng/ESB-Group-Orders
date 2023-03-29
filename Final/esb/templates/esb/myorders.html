@@ -14,8 +14,8 @@
             <div>Order No.{{ p.purchase.id}}: </div>
             <!-- Image-->
             <div class="div-preview-img">
-                {% if p.purchase.product.img %}
-                    <img src="{{ p.purchase.product.img }}" alt="{{ p.purchase.product.title }}">
+                {% if p.purchase.product.product_image.first.image.url %}
+                    <img src="{{ p.purchase.product.product_image.first.image.url }}" alt="{{ p.purchase.product.title }}">
                 {% else %}
                     No Image.
                 {% endif %}
