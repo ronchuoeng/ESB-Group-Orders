@@ -1,6 +1,11 @@
 {% extends "esb/pendings.html" %}
 
-{% block title %} <h1 class="padding1">My Orders</h1> {% endblock %}
+{% block title %}My Orders{% endblock %}
+
+{% block top %}
+<!-- Top-->
+<h1 class="padding1">My Orders</h1>
+{% endblock %}
 
 {% block body-view %}
     {% for p in page_obj %}

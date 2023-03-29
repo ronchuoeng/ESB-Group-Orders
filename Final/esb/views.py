@@ -260,9 +260,10 @@ def order_page(request, order_id):
             cus = Customer.objects.get(user=user)
         # If Customer model haven't create
         except Customer.DoesNotExist:
+            messages.warning(
+                request, "Please complete your information before joining an order.")
             return render(request, "esb/settings.html", {
                 "user": user,
-                "message": "Please complete your information before joining an order."
             })
         # form of quantity user submit
         quantity = request.POST.get('join')
