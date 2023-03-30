@@ -99,9 +99,9 @@ function uploadImage() {
 
 function displayImages(image_id) {
     var previewDiv = document.getElementById("div-order-img");
-    var images = document.querySelectorAll("img");
-    var btnsDelete = document.querySelectorAll("a");
-    var numImages = images.length;
+    var images = document.querySelectorAll(".img-thumbnail");
+    var btnsDelete = document.querySelectorAll(".btn.btn-danger");
+    var numImages = images.length + 1;
     // Hide all the image and button
     images.forEach((img) => {
         img.style.display = "none";
@@ -142,6 +142,7 @@ function displayImages(image_id) {
     // Add uplaoded image to Img View Area
     previewDiv.appendChild(image);
     previewDiv.appendChild(btnDelete);
+    var numImages = images.length;
 }
 
 function toggleImage(action) {
@@ -163,15 +164,18 @@ function toggleImage(action) {
         count = count - 1;
         image = document.querySelector(`#index${count}`);
         btn = document.querySelector(`#index-delete${count}`);
-        console.log(count);
     } else if (action == "next") {
         count = count + 1;
         image = document.querySelector(`#index${count}`);
         btn = document.querySelector(`#index-delete${count}`);
-        console.log(count);
     }
-    image.style.display = "block";
-    btn.style.display = "block";
+
+    if (image) {
+        image.style.display = "block";
+    }
+    if (btn) {
+        btn.style.display = "block";
+    }
 
     // Disabled 'Prev' when out of range
     const btnPrev = document.querySelector("#prev-image");
@@ -222,24 +226,18 @@ function deleteImage(image_id, idNum) {
             imagePrepareToRemove.remove();
             buttonPrepareToRemove.remove();
 
-            console.log("idNum:", idNum);
-            console.log("imagesLength:" + imagesLength);
             const images = document.querySelectorAll(".img-thumbnail");
-            console.log("images.length:" + images.length);
             if (imagesLength > idNum) {
-                console.log("images ok");
                 images.forEach((img) => {
-                    console.log(" each ok");
                     const idImg = img.id.split("x")[1]; // Get the index number. e.g. Get 1 from index1, 2 from index2
+
                     if (idImg > idNum) {
                         const newID = "index" + (idImg - 1);
                         const btnDelete = document.getElementById(
                             `index-delete${idImg}`
                         );
-
                         img.id = newID;
                         btnDelete.id = "index-delete" + (idImg - 1);
-                        console.log("count" + count);
                     }
                 });
             }

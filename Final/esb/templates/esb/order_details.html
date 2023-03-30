@@ -36,7 +36,7 @@
                     <input type="number" id="input-target-quantity" style="display:none;" placeholder="Target Quantity" onkeyup="saveOnEnter(event, '{{ p_order.id }}', 'p_order')" value="{{ p_order.target_quantity}}">
                 </td>
                 <td><span id="date-time">{{ p_order.date_time|date:"d/m/Y, H:i:s" }}</span>
-                        <input type="datetime-local" id="input-expiration-datetime" style="display:none;" value="{{ p_order.date_time|date:'d/m/Y, H:i:s' }}" onkeyup="saveOnEnter(event, '{{ p_order.id }}', 'p_order')">
+                    <input type="datetime-local" id="input-expiration-datetime" style="display:none;"  value="{{ p_order.date_time|date:'Y-m-d H:i' }}" onkeyup="saveOnEnter(event, '{{ p_order.id }}', 'p_order')">
                 </td>
                 <td id="order-status" style="text-align:left;">
                     {% if p_order.reach_target %}

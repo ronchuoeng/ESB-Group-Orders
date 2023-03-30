@@ -6,17 +6,18 @@ ESB is a group buying platform that allows users to purchase products at a disco
 
 -   Adopts a group purchase model, unlike traditional e-commerce sites.
 -   This project has multiple product categories, including major and subcategories, as opposed to project 2, which only has a single category.
+-   Toggle Image Display function.
 -   For _Users_:
     -   Account registration requires email verification to ensure account authenticity.
     -   Buyer eligibility based on complete account information.
     -   View ongoing and pending orders. Buyers can cancel the pending orders they joined, but once an order is in progress, cancellation is no longer allowed.
     -   Users can create orders for active products and join existing orders for active/inactive products.
     -   Users can search for products through the search bar.
--   For _Admin_(Manufacturer):
+-   For _Staff_(Manufacturer):
     -   Each order has target quantity and expiration dates; production only begins when targets are met.
-    -   Admin can allow users to create orders for specific products or only join orders created by admin.
+    -   Staff can allow users to create orders for specific products or only join orders created by staff.
     -   Multiple images can be uploaded to a product instead of via URL.
-    -   Admins can cancel or adjust customer orders at any time.
+    -   Can create and edit products and orders at any time. However, if staff choose to delete a product, they should ensure that there are no orders in progress related to that product. If such orders exist, they should delete them before deleting the product.
 
 ## Files Contain
 

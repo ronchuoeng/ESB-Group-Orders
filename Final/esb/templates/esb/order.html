@@ -54,7 +54,14 @@
                 <li>Order Deadline: {{ p_order.date_time }}</li>
             </ul>
             {% if p_order.is_expired %}
-                <div class="text-bg-secondary p-3" style="text-align:center;">This order has expired</div>
+                <div class="alert alert-dark" role="alert" style="text-align:center;">This order has expired</div>
+                    {% if p_order.reach_target %}
+                        {% if cus_in_order %}
+                            <div class="alert alert-light" role="alert"  style="text-align:center;">
+                                Your have ordered: {{cus_order_quantity }}
+                            </div>
+                        {% endif %}
+                    {% endif %}
             {% else %}
                 {% if p_order.reach_target %}
                 <div class="div-target" style="text-align:center;background-color: rgba(121, 250, 121, 0.767);">
